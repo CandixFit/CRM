@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Simples CRM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <button id="sapModeToggle" class="sap-toggle-btn">SAP-Mode aktivieren</button>
+        <h1>Mein CRM</h1>
+
+        <form id="customerForm" autocomplete="off">
+            <input type="text" id="customerId" placeholder="Kunden-ID (wie SAP Business One)" pattern="[A-Z0-9]+" required>
+            <input type="text" id="name" placeholder="Name" required pattern="[a-zA-ZäöüßÄÖÜ ]+">
+            <input type="email" id="email" placeholder="E-Mail" required>
+            <input type="tel" id="phone" placeholder="Telefon" pattern="[0-9+]+">
+            <button type="submit" class="sap-primary">Speichern</button>
+        </form>
+
+        <div id="errorMessage" style="color: red; display: none;"></div>
+
+        <table id="customerTable">
+            <thead>
+                <tr>
+                    <th>Kunden-ID</th>
+                    <th>Name</th>
+                    <th>E-Mail</th>
+                    <th>Telefon</th>
+                    <th>Aktionen</th>
+                </tr>
+            </thead>
+            <tbody id="customerList"></tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

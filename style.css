@@ -1,0 +1,93 @@
+/* SAP-Farbpalette */
+:root {
+    --sap-blue: #0A6ED1;
+    --sap-gray: #F5F6F7;
+    --sap-green: #5CB346;
+    --sap-red: #E52929;
+    --sap-orange: #E9730C;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.sap-mode {
+    background-color: var(--sap-gray) !important;
+    --primary-color: var(--sap-blue);
+    --danger-color: var(--sap-red);
+    --success-color: var(--sap-green);
+}
+
+.sap-mode .container {
+    border: 1px solid #d9d9d9;
+    font-family: '72', Arial, sans-serif;
+}
+
+.sap-primary {
+    background-color: var(--sap-blue);
+    color: white;
+}
+
+button[onclick*="delete"] {
+    background-color: var(--sap-red);
+    color: white;
+}
+
+button[onclick*="edit"] {
+    background-color: var(--sap-green);
+    color: white;
+}
+
+.sap-toggle-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 15px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+input {
+    padding: 8px;
+    margin: 5px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 8px 12px;
+    margin: 2px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
