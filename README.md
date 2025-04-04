@@ -1,2 +1,2 @@
 # CRM
-No dublicates, required statements, functions
+No dublicates, required statement, functions
