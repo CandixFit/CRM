@@ -1,2 +1,2 @@
 # CRM
-No dublicates, required statement, functions, SAP modse
+No dublicates, required statement, functions, SAP mod
