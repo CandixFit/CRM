@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Das CRM Projekt</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>📊 Das CRM Projekt</h1>
+    <button id="modeToggle">Darkmode umschalten</button>
+  </header>
+
+  <nav>
+    <button onclick="switchTab('kunden')">Kunden</button>
+    <button onclick="switchTab('kalender')">Kalender</button>
+    <button onclick="switchTab('dokumente')">Dokumente</button>
+    <button onclick="switchTab('kommunikation')">Kommunikation</button>
+  </nav>
+
+  <main>
+    <section id="kunden" class="tab active">
+      <h2>Kundendaten eingeben</h2>
+      <form id="kundenForm">
+        <input type="text" placeholder="Firmenname" required />
+        <input type="text" placeholder="Ansprechpartner" required />
+        <input type="email" placeholder="E-Mail" />
+        <select>
+          <option>Bestandskunde</option>
+          <option>Interessent</option>
+        </select>
+        <textarea placeholder="Notizen..."></textarea>
+        <button type="submit">Speichern</button>
+      </form>
+    </section>
+
+    <section id="kalender" class="tab">
+      <h2>📅 Kalender & Organizer</h2>
+      <div id="kalenderContainer"></div>
+      <div id="terminFormular" style="display:none;">
+          <h4>Neuer Termin für <span id="ausgewähltesDatum"></span></h4>
+          <input type="text" id="terminText" placeholder="Terminbeschreibung" />
+          <button onclick="speichereTermin()">Speichern</button>
+      </div>
+       <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+           <button onclick="wechselMonat(-1)">⏮</button>
+           <h3 id="monatAnzeige"></h3>
+           <button onclick="wechselMonat(1)">⏭</button>
+       </div>
+
+      <h3>Gespeicherte Termine</h3>
+      <ul id="terminListe"></ul>
+    </section>
+
+
+    <section id="dokumente" class="tab">
+      <h2>📄 Dokumentenverwaltung</h2>
+      <p>(Upload-Funktion & Vertragsübersicht kommen noch)</p>
+    </section>
+
+    <section id="kommunikation" class="tab">
+      <h2>💬 Kommunikation</h2>
+      <p>(E-Mail-Funktionalität & Newsletter-Versand folgen)</p>
+    </section>
+      <h3>Gespeicherte Kunden</h3>
+      <ul id="kundenListe"></ul>
+
+  </main>
+
+  <footer>
+    <p>© 2025 – CRM by Can Cingöz</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

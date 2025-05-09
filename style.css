@@ -1,0 +1,100 @@
+:root {
+  --bg: #dce3ea;
+  --text: #222;
+  --primary: #4a90e2;
+  --card: #f4f7fa;
+}
+
+body.dark {
+  --bg: #0d1b2a;
+  --text: #ffffff;
+  --card: #1b263b;
+}
+
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+header {
+  background-color: var(--primary);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+#modeToggle {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  padding: 8px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  background: #ccd6e0;
+}
+
+nav button {
+  margin: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+main {
+  padding: 30px;
+}
+
+.tab {
+  display: none;
+  background-color: var(--card);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.tab.active {
+  display: block;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input, select, textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #ccc;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.kalenderTag:hover {
+  background-color: #d0eaff;
+}
