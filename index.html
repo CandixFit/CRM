@@ -1,39 +1,60 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Simples CRM</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Das CRM Projekt</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container" id="mainContainer">
-        <button id="sapModeToggle" class="sap-toggle-btn">SAP-Mode aktivieren</button>
-        <h1>Mein CRM</h1>
+  <header>
+    <h1>📊 Das CRM Projekt</h1>
+    <button id="modeToggle">Darkmode umschalten</button>
+  </header>
 
-        <form id="customerForm" autocomplete="off">
-            <input type="text" id="customerId" placeholder="Kunden-ID (wie SAP Business One)" pattern="[A-Z0-9]+" required>
-            <input type="text" id="name" placeholder="Name" required pattern="[a-zA-ZäöüßÄÖÜ ]+">
-            <input type="email" id="email" placeholder="E-Mail" required>
-            <input type="tel" id="phone" placeholder="Telefon" pattern="[0-9+]+">
-            <button type="submit" class="sap-primary">Speichern</button>
-        </form>
+  <nav>
+    <button onclick="switchTab('kunden')">Kunden</button>
+    <button onclick="switchTab('kalender')">Kalender</button>
+    <button onclick="switchTab('dokumente')">Dokumente</button>
+    <button onclick="switchTab('kommunikation')">Kommunikation</button>
+  </nav>
 
-        <div id="errorMessage" style="color: red; display: none;"></div>
+  <main>
+    <section id="kunden" class="tab active">
+      <h2>Kundendaten eingeben</h2>
+      <form id="kundenForm">
+        <input type="text" placeholder="Firmenname" required />
+        <input type="text" placeholder="Ansprechpartner" required />
+        <input type="email" placeholder="E-Mail" />
+        <select>
+          <option>Bestandskunde</option>
+          <option>Interessent</option>
+        </select>
+        <textarea placeholder="Notizen..."></textarea>
+        <button type="submit">Speichern</button>
+      </form>
+    </section>
 
-        <table id="customerTable">
-            <thead>
-                <tr>
-                    <th>Kunden-ID</th>
-                    <th>Name</th>
-                    <th>E-Mail</th>
-                    <th>Telefon</th>
-                    <th>Aktionen</th>
-                </tr>
-            </thead>
-            <tbody id="customerList"></tbody>
-        </table>
-    </div>
+    <section id="kalender" class="tab">
+      <h2>📅 Kalender & Organizer</h2>
+      <p>(Hier kannst du später Termine integrieren)</p>
+    </section>
 
-    <script src="script.js"></script>
+    <section id="dokumente" class="tab">
+      <h2>📄 Dokumentenverwaltung</h2>
+      <p>(Upload-Funktion & Vertragsübersicht kommen noch)</p>
+    </section>
+
+    <section id="kommunikation" class="tab">
+      <h2>💬 Kommunikation</h2>
+      <p>(E-Mail-Funktionalität & Newsletter-Versand folgen)</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 – CRM by Can Cingöz</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
