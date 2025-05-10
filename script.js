@@ -139,16 +139,31 @@ function erstelleKalender() {
   let zeile = kalender.insertRow();
   for (let i = 0; i < wochentagStart; i++) zeile.insertCell();
 
-  for (let tag = 1; tag <= letzterTag; tag++) {
-    if (zeile.cells.length === 7) zeile = kalender.insertRow();
-    const zelle = zeile.insertCell();
-    zelle.textContent = tag;
-    zelle.classList.add("kalenderTag");
-    zelle.onclick = () => {
-      const datum = `${aktuellesJahr}-${String(aktuellerMonat + 1).padStart(2, '0')}-${String(tag).padStart(2, '0')}`;
-      document.getElementById("terminDatum").value = datum;
-    };
-  }
+    let termine = JSON.parse(localStorage.getItem("termine")) || {};
+    let selektierteZelle = null;
+
+    for (let tag = 1; tag <= letzterTag; tag++) {
+      if (zeile.cells.length === 7) zeile = kalender.insertRow();
+      const zelle = zeile.insertCell();
+      zelle.textContent = tag;
+      zelle.classList.add("kalenderTag");
+
+      const datumKey = `${aktuellesJahr}-${String(aktuellerMonat + 1).padStart(2, '0')}-${String(tag).padStart(2, '0')}`;
+      if (termine[datumKey]) {
+          zelle.classList.add("mitTermin");
+          zelle.title = termine[datumKey].join(" • ");
+        }
+
+
+      zelle.onclick = () => {
+        if (selektierteZelle) selektierteZelle.classList.remove("aktiv");
+        zelle.classList.add("aktiv");
+        selektierteZelle = zelle;
+
+        document.getElementById("terminDatum").value = datumKey;
+      };
+    }
+
 
   container.appendChild(kalender);
 }
@@ -183,6 +198,29 @@ function zeigeTermine() {
   alleTermine.forEach(eintrag => {
     const li = document.createElement("li");
     li.textContent = `📅 ${eintrag.datum}: ${eintrag.text}`;
+    const bearbeitenBtn = document.createElement("button");
+    bearbeitenBtn.textContent = "✏️";
+    bearbeitenBtn.onclick = () => {
+      const neueBeschreibung = prompt("Neue Beschreibung:", eintrag.text);
+      const neuesDatum = prompt("Neues Datum (YYYY-MM-DD):", eintrag.datum);
+
+      if (neueBeschreibung && neuesDatum) {
+        const termine = JSON.parse(localStorage.getItem("termine")) || {};
+
+        // alten Eintrag löschen
+        termine[eintrag.datum].splice(eintrag.index, 1);
+        if (termine[eintrag.datum].length === 0) delete termine[eintrag.datum];
+
+        // neuen Eintrag speichern
+        if (!termine[neuesDatum]) termine[neuesDatum] = [];
+        termine[neuesDatum].push(neueBeschreibung);
+
+        localStorage.setItem("termine", JSON.stringify(termine));
+        zeigeTermine();
+        aktualisiereTermineChart();
+      }
+    };
+
 
     const löschenBtn = document.createElement("button");
     löschenBtn.textContent = "❌";
@@ -195,8 +233,10 @@ function zeigeTermine() {
       aktualisiereTermineChart();
     };
 
+    li.appendChild(bearbeitenBtn);
     li.appendChild(löschenBtn);
     liste.appendChild(li);
+
   });
 }
 
