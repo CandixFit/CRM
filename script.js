@@ -1,25 +1,20 @@
-let aktuellerMonat = new Date().getMonth();
-let aktuellesJahr = new Date().getFullYear();
-
+// Tab-Wechsel
 function switchTab(id) {
   document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
+// Darkmode
 document.getElementById("modeToggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
 });
 
 // Kunden speichern
 const form = document.getElementById("kundenForm");
-const kundenListe = document.getElementById("kundenListe");
-
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-
   const [firma, name, email, typ, notizen] = Array.from(form.elements).map(el => el.value.trim());
 
-  // Validierung
   if (!firma || !name || !typ) {
     alert("Bitte Firma, Name und Typ ausfüllen.");
     return;
@@ -30,59 +25,39 @@ form.addEventListener("submit", (e) => {
     return;
   }
 
-  if (firma.length > 50 || name.length > 50 || notizen.length > 250) {
-    alert("Bitte kürzere Eingaben machen (max 50 Zeichen für Firma/Name, 250 für Notizen).");
-    return;
-  }
-
-  // Duplikatsprüfung
   let daten = JSON.parse(localStorage.getItem("kunden")) || [];
-  const bereitsVorhanden = daten.some(k => k.firma === firma && k.email === email);
-  if (bereitsVorhanden) {
+  const doppelt = daten.some(k => k.firma === firma && k.email === email);
+  if (doppelt) {
     alert("Kunde mit dieser Firma und E-Mail existiert bereits.");
     return;
   }
 
-  const eintrag = { firma, name, email, typ, notizen };
-  daten.push(eintrag);
+  daten.push({ firma, name, email, typ, notizen });
   localStorage.setItem("kunden", JSON.stringify(daten));
-
   form.reset();
   zeigeKunden();
   aktualisiereKundenChart();
 });
 
-
 function zeigeKunden() {
-  kundenListe.innerHTML = "";
+  const liste = document.getElementById("kundenListe");
+  liste.innerHTML = "";
   const daten = JSON.parse(localStorage.getItem("kunden")) || [];
 
   daten.forEach((kunde, index) => {
     const li = document.createElement("li");
     li.textContent = `${kunde.firma} – ${kunde.name} (${kunde.typ})`;
 
-    const löschenBtn = document.createElement("button");
-    löschenBtn.textContent = "🗑️";
-    löschenBtn.onclick = () => {
-      daten.splice(index, 1);
-      localStorage.setItem("kunden", JSON.stringify(daten));
-      zeigeKunden();
-      aktualisiereKundenChart();
-
-    };
     const bearbeitenBtn = document.createElement("button");
     bearbeitenBtn.textContent = "✏️";
     bearbeitenBtn.onclick = () => {
       const neuerName = prompt("Neuer Name:", kunde.name);
       const neueFirma = prompt("Neue Firma:", kunde.firma);
       const neueEmail = prompt("Neue E-Mail:", kunde.email);
-      const neuerTyp = prompt("Neuer Typ (Bestandskunde / Interessent):", kunde.typ);
+      const neuerTyp = prompt("Neuer Typ (Bestandskunde/Interessent):", kunde.typ);
       const neueNotizen = prompt("Neue Notizen:", kunde.notizen);
 
-      if (!neuerName || !neueFirma || !neuerTyp) {
-        alert("Name, Firma und Typ dürfen nicht leer sein.");
-        return;
-      }
+      if (!neuerName || !neueFirma || !neuerTyp) return;
 
       kunde.name = neuerName.trim();
       kunde.firma = neueFirma.trim();
@@ -95,31 +70,53 @@ function zeigeKunden() {
       aktualisiereKundenChart();
     };
 
-    li.appendChild(bearbeitenBtn);
-
-
-
-    li.appendChild(löschenBtn);
-    kundenListe.appendChild(li);
-  });
-
-  if (daten.length > 0) {
-    const alleLöschenBtn = document.createElement("button");
-    alleLöschenBtn.textContent = "🧹 Alle Kunden löschen";
-    alleLöschenBtn.onclick = () => {
-      if (confirm("Möchtest du wirklich alle Kunden löschen?")) {
-        localStorage.removeItem("kunden");
-        zeigeKunden();
-      }
+    const löschenBtn = document.createElement("button");
+    löschenBtn.textContent = "🗑️";
+    löschenBtn.onclick = () => {
+      daten.splice(index, 1);
+      localStorage.setItem("kunden", JSON.stringify(daten));
+      zeigeKunden();
+      aktualisiereKundenChart();
     };
-    kundenListe.appendChild(alleLöschenBtn);
-  }
+
+    li.appendChild(bearbeitenBtn);
+    li.appendChild(löschenBtn);
+    liste.appendChild(li);
+  });
 }
 
+// Suche
+function filterKunden() {
+  const begriff = document.getElementById("sucheKunden").value.toLowerCase();
+  document.querySelectorAll("#kundenListe li").forEach(li => {
+    li.style.display = li.textContent.toLowerCase().includes(begriff) ? "" : "none";
+  });
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-  zeigeKunden();
-});
+// Kunden-Chart
+function aktualisiereKundenChart() {
+  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
+  let bestandskunden = 0, interessenten = 0;
+  daten.forEach(k => k.typ === "Bestandskunde" ? bestandskunden++ : interessenten++);
+
+  const ctx = document.getElementById("kundenChart").getContext("2d");
+  if (window.kundenChartInstanz) window.kundenChartInstanz.destroy();
+  window.kundenChartInstanz = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Bestandskunden", "Interessenten"],
+      datasets: [{
+        label: "Anzahl",
+        data: [bestandskunden, interessenten],
+        backgroundColor: ["#3498db", "#f39c12"]
+      }]
+    }
+  });
+}
+
+let aktuellerMonat = new Date().getMonth();
+let aktuellesJahr = new Date().getFullYear();
+
 function erstelleKalender() {
   const container = document.getElementById("kalenderContainer");
   container.innerHTML = "";
@@ -147,34 +144,23 @@ function erstelleKalender() {
     const zelle = zeile.insertCell();
     zelle.textContent = tag;
     zelle.classList.add("kalenderTag");
-    zelle.addEventListener("click", () =>
-      zeigeFormular(aktuellesJahr, aktuellerMonat + 1, tag)
-    );
+    zelle.onclick = () => {
+      const datum = `${aktuellesJahr}-${String(aktuellerMonat + 1).padStart(2, '0')}-${String(tag).padStart(2, '0')}`;
+      document.getElementById("terminDatum").value = datum;
+    };
   }
 
   container.appendChild(kalender);
 }
 
-
-function zeigeFormular(jahr, monat, tag) {
-  const datum = `${jahr}-${String(monat).padStart(2, '0')}-${String(tag).padStart(2, '0')}`;
-  document.getElementById("terminDatum").value = datum;
-}
-
-
 function speichereTermin() {
   const datum = document.getElementById("terminDatum").value;
   const text = document.getElementById("terminText").value.trim();
-
-  if (!datum || !text) {
-    alert("Bitte Datum und Beschreibung eingeben.");
-    return;
-  }
+  if (!datum || !text) return;
 
   let termine = JSON.parse(localStorage.getItem("termine")) || {};
   if (!termine[datum]) termine[datum] = [];
   termine[datum].push(text);
-
   localStorage.setItem("termine", JSON.stringify(termine));
 
   document.getElementById("terminText").value = "";
@@ -182,25 +168,22 @@ function speichereTermin() {
   aktualisiereTermineChart();
 }
 
-
 function zeigeTermine() {
   const liste = document.getElementById("terminListe");
   liste.innerHTML = "";
   const termine = JSON.parse(localStorage.getItem("termine")) || {};
 
   const alleTermine = [];
-
   for (const datum in termine) {
     termine[datum].forEach((text, i) => {
       alleTermine.push({ datum, text, index: i });
     });
   }
 
-  alleTermine.forEach((eintrag, i) => {
+  alleTermine.forEach(eintrag => {
     const li = document.createElement("li");
     li.textContent = `📅 ${eintrag.datum}: ${eintrag.text}`;
 
-    // ❌ LÖSCHEN
     const löschenBtn = document.createElement("button");
     löschenBtn.textContent = "❌";
     löschenBtn.onclick = () => {
@@ -209,121 +192,7 @@ function zeigeTermine() {
       if (termine[eintrag.datum].length === 0) delete termine[eintrag.datum];
       localStorage.setItem("termine", JSON.stringify(termine));
       zeigeTermine();
-    };
-
-    // ✏️ BEARBEITEN
-    const bearbeitenBtn = document.createElement("button");
-    bearbeitenBtn.textContent = "✏️";
-    bearbeitenBtn.onclick = () => {
-        const neueBeschreibung = prompt("Neue Beschreibung:", eintrag.text);
-        const neuesDatum = prompt("Neues Datum (YYYY-MM-DD):", eintrag.datum);
-
-        if (neueBeschreibung && neuesDatum && neuesDatum.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const termine = JSON.parse(localStorage.getItem("termine")) || {};
-
-    // Alten Termin entfernen
-        termine[eintrag.datum].splice(eintrag.index, 1);
-        if (termine[eintrag.datum].length === 0) delete termine[eintrag.datum];
-
-        // Neuen Termin einfügen
-        if (!termine[neuesDatum]) termine[neuesDatum] = [];
-        termine[neuesDatum].push(neueBeschreibung);
-
-        localStorage.setItem("termine", JSON.stringify(termine));
-        zeigeTermine();
-      } else {
-        alert("Ungültige Eingabe. Format für Datum: YYYY-MM-DD");
-      }
-    };
-
-
-    li.appendChild(bearbeitenBtn);
-    li.appendChild(löschenBtn);
-    liste.appendChild(li);
-  });
-
-  if (alleTermine.length > 0) {
-    const alleLöschenBtn = document.createElement("button");
-    alleLöschenBtn.textContent = "🧹 Alle Termine löschen";
-    alleLöschenBtn.onclick = () => {
-      if (confirm("Möchtest du wirklich alle Termine löschen?")) {
-        localStorage.removeItem("termine");
-        zeigeTermine();
-      }
-    };
-    liste.appendChild(alleLöschenBtn);
-  }
-}
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  zeigeKunden();
-  erstelleKalender();
-  zeigeTermine();
-  fülleKundenDropdown();
-  aktualisiereKundenChart();
-
-
-});
-//Funktion: Dropdown beim Start füllen
-function fülleKundenDropdown() {
-  const select = document.getElementById("dokumentKunde");
-  if (!select) return;
-
-  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
-  daten.forEach((kunde, index) => {
-    const opt = document.createElement("option");
-    opt.value = kunde.name;
-    opt.textContent = `${kunde.name} (${kunde.firma})`;
-    select.appendChild(opt);
-  });
-}
-//Funktion: Dateien hochladen & speichern
-function ladeDateien() {
-  const kunde = document.getElementById("dokumentKunde").value;
-  const files = document.getElementById("dateiUpload").files;
-
-  if (!kunde || files.length === 0) return;
-
-  const speicher = JSON.parse(localStorage.getItem("dokumente")) || {};
-
-  if (!speicher[kunde]) speicher[kunde] = [];
-
-  Array.from(files).forEach(file => {
-    speicher[kunde].push({
-      name: file.name,
-      url: URL.createObjectURL(file),
-      typ: file.type,
-      zeit: new Date().toISOString()
-    });
-  });
-
-  localStorage.setItem("dokumente", JSON.stringify(speicher));
-  zeigeDokumente(kunde);
-}
-//Funktion Dokumente anzeigen, löschen, laden
-function zeigeDokumente(kunde) {
-  const liste = document.getElementById("dokumentListe");
-  liste.innerHTML = "";
-  const daten = JSON.parse(localStorage.getItem("dokumente")) || {};
-
-  if (!daten[kunde]) return;
-
-  daten[kunde].forEach((doc, index) => {
-    const li = document.createElement("li");
-    const link = document.createElement("a");
-    link.href = doc.url;
-    link.textContent = `📄 ${doc.name}`;
-    link.target = "_blank";
-    li.appendChild(link);
-
-    const löschenBtn = document.createElement("button");
-    löschenBtn.textContent = "🗑️";
-    löschenBtn.onclick = () => {
-      daten[kunde].splice(index, 1);
-      if (daten[kunde].length === 0) delete daten[kunde];
-      localStorage.setItem("dokumente", JSON.stringify(daten));
-      zeigeDokumente(kunde);
+      aktualisiereTermineChart();
     };
 
     li.appendChild(löschenBtn);
@@ -331,124 +200,36 @@ function zeigeDokumente(kunde) {
   });
 }
 
-document.getElementById("dokumentKunde").addEventListener("change", (e) => {
-  zeigeDokumente(e.target.value);
-});
-//kunden speichern dokumente
-function speichereDokument() {
-  const kunde = document.getElementById("kundenNameDokument").value.trim();
-  const dateiInput = document.getElementById("dokumentUpload");
-  const datei = dateiInput.files[0];
-  const rolle = document.getElementById("rolleDokument").value;
-
-  if (!kunde || !datei) {
-    alert("Bitte Kundennamen und eine Datei angeben.");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    let daten = JSON.parse(localStorage.getItem("dokumente")) || {};
-    if (!daten[kunde]) daten[kunde] = [];
-
-    daten[kunde].push({ name: datei.name, inhalt: e.target.result, rolle });
-
-    localStorage.setItem("dokumente", JSON.stringify(daten));
-    zeigeDokumente();
-    document.getElementById("dokumentUpload").value = "";
-  };
-  reader.readAsDataURL(datei);
+function filterTermine() {
+  const suchbegriff = document.getElementById("sucheTermine").value.toLowerCase();
+  document.querySelectorAll("#terminListe li").forEach(li => {
+    li.style.display = li.textContent.toLowerCase().includes(suchbegriff) ? "" : "none";
+  });
 }
 
-
-function zeigeDokumente() {
-  const aktuelleRolle = document.getElementById("rolleDokument").value;
-
-  const liste = document.getElementById("dokumentListe");
-  liste.innerHTML = "";
-  const daten = JSON.parse(localStorage.getItem("dokumente")) || {};
-
-  for (const kunde in daten) {
-    const unterTitel = document.createElement("h4");
-    unterTitel.textContent = `📁 ${kunde}`;
-    liste.appendChild(unterTitel);
-
-
-    daten[kunde].forEach((doc, index) => {
-      const li = document.createElement("li");
-      li.textContent = doc.name;
-
-      const öffnenLink = document.createElement("a");
-      öffnenLink.style.marginLeft = "10px";
-
-        // Vorschau-Button (PDF oder Bild)
-        const isVorschauDatei = doc.name.match(/\.(pdf|png|jpe?g|gif)$/i);
-        if (isVorschauDatei) {
-          const vorschauBtn = document.createElement("button");
-          vorschauBtn.textContent = "👁️ Vorschau anzeigen";
-          vorschauBtn.style.marginLeft = "10px";
-
-          const vorschauBereich = document.createElement("div");
-          vorschauBereich.style.display = "none";
-          vorschauBereich.style.marginTop = "10px";
-
-          if (doc.name.match(/\.pdf$/i)) {
-            const iframe = document.createElement("iframe");
-            iframe.src = doc.inhalt;
-            iframe.width = "100%";
-            iframe.height = "300";
-            iframe.style.border = "1px solid #ccc";
-            vorschauBereich.appendChild(iframe);
-          } else {
-            const bild = document.createElement("img");
-            bild.src = doc.inhalt;
-            bild.style.maxWidth = "100%";
-            bild.style.maxHeight = "200px";
-            vorschauBereich.appendChild(bild);
-          }
-
-          vorschauBtn.onclick = () => {
-            const sichtbar = vorschauBereich.style.display === "block";
-            vorschauBereich.style.display = sichtbar ? "none" : "block";
-            vorschauBtn.textContent = sichtbar ? "👁️ Vorschau anzeigen" : "🙈 Vorschau verbergen";
-          };
-
-          li.appendChild(vorschauBtn);
-          li.appendChild(vorschauBereich);
-        } else {
-          const öffnenLink = document.createElement("a");
-          öffnenLink.href = doc.inhalt;
-          öffnenLink.download = doc.name;
-          öffnenLink.textContent = "⬇️";
-          öffnenLink.style.marginLeft = "10px";
-          li.appendChild(öffnenLink);
-        }
-
-
-
-      const löschenBtn = document.createElement("button");
-      löschenBtn.textContent = "🗑️";
-      löschenBtn.onclick = () => {
-        daten[kunde].splice(index, 1);
-        if (daten[kunde].length === 0) delete daten[kunde];
-        localStorage.setItem("dokumente", JSON.stringify(daten));
-        zeigeDokumente();
-      };
-
-      li.appendChild(öffnenLink);
-      li.appendChild(löschenBtn);
-      liste.appendChild(li);
-    });
+function aktualisiereTermineChart() {
+  const termine = JSON.parse(localStorage.getItem("termine")) || {};
+  const monatsZähler = Array(12).fill(0);
+  for (const datum in termine) {
+    const monat = new Date(datum).getMonth();
+    monatsZähler[monat] += termine[datum].length;
   }
+
+  const ctx = document.getElementById("termineChart").getContext("2d");
+  if (window.termineChartInstanz) window.termineChartInstanz.destroy();
+  window.termineChartInstanz = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+      datasets: [{
+        label: "Termine pro Monat",
+        data: monatsZähler,
+        borderColor: "#4a90e2",
+        tension: 0.2
+      }]
+    }
+  });
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  zeigeKunden();
-  erstelleKalender();
-  zeigeTermine();
-  zeigeDokumente();
-});
-
 
 function wechselMonat(schritt) {
   aktuellerMonat += schritt;
@@ -461,170 +242,140 @@ function wechselMonat(schritt) {
   }
   erstelleKalender();
 }
-//filter für kunden
-function filterKunden() {
-  const suchbegriff = document.getElementById("sucheKunden").value.toLowerCase();
-  const einträge = document.querySelectorAll("#kundenListe li");
-  einträge.forEach(e => {
-    const text = e.textContent.toLowerCase();
-    e.style.display = text.includes(suchbegriff) ? "" : "none";
-  });
-}
-//filter für termine
-function filterTermine() {
-  const suchbegriff = document.getElementById("sucheTermine").value.toLowerCase();
-  const einträge = document.querySelectorAll("#terminListe li");
-  einträge.forEach(e => {
-    const text = e.textContent.toLowerCase();
-    e.style.display = text.includes(suchbegriff) ? "" : "none";
-  });
-}
-function aktualisiereKundenChart() {
-  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
-  let bestandskunden = 0;
-  let interessenten = 0;
 
-  daten.forEach(kunde => {
-    if (kunde.typ === "Bestandskunde") bestandskunden++;
-    else interessenten++;
-  });
+function speichereDokument() {
+  const kunde = document.getElementById("kundenNameDokument").value.trim();
+  const datei = document.getElementById("dokumentUpload").files[0];
+  const rolle = document.getElementById("rolleDokument").value;
 
-  const ctx = document.getElementById("kundenChart").getContext("2d");
-  if (window.kundenChartInstanz) window.kundenChartInstanz.destroy();
-
-  window.kundenChartInstanz = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Bestandskunden", "Interessenten"],
-      datasets: [{
-        label: "Anzahl Kunden",
-        data: [bestandskunden, interessenten],
-        backgroundColor: ["#4a90e2", "#f39c12"]
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: "Verteilung Kundentypen"
-        }
-      }
-    }
-  });
-}
-//diagramm kalender
-function aktualisiereTermineChart() {
-  const termine = JSON.parse(localStorage.getItem("termine")) || {};
-  const monatsZähler = Array(12).fill(0);
-
-  for (const datum in termine) {
-    const monat = new Date(datum).getMonth(); // 0 = Jan, 11 = Dez
-    monatsZähler[monat] += termine[datum].length;
+  if (!kunde || !datei) {
+    alert("Kundename und Datei erforderlich.");
+    return;
   }
 
-  const ctx = document.getElementById("termineChart").getContext("2d");
-  if (window.termineChartInstanz) window.termineChartInstanz.destroy();
-
-  window.termineChartInstanz = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: [
-        "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
-        "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"
-      ],
-      datasets: [{
-        label: "Termine pro Monat",
-        data: monatsZähler,
-        backgroundColor: "#4a90e2",
-        borderColor: "#4a90e2",
-        fill: false,
-        tension: 0.2
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: "Termine nach Monat"
-        }
-      }
-    }
-  });
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    let daten = JSON.parse(localStorage.getItem("dokumente")) || {};
+    if (!daten[kunde]) daten[kunde] = [];
+    daten[kunde].push({ name: datei.name, inhalt: e.target.result, rolle });
+    localStorage.setItem("dokumente", JSON.stringify(daten));
+    zeigeDokumente();
+  };
+  reader.readAsDataURL(datei);
 }
+
+function zeigeDokumente() {
+  const liste = document.getElementById("dokumentListe");
+  liste.innerHTML = "";
+  const daten = JSON.parse(localStorage.getItem("dokumente")) || {};
+  const aktuelleRolle = document.getElementById("rolleDokument").value;
+
+  for (const kunde in daten) {
+    const titel = document.createElement("h4");
+    titel.textContent = `📁 ${kunde}`;
+    liste.appendChild(titel);
+
+    daten[kunde].forEach((doc, index) => {
+      if (aktuelleRolle !== "Alle" && doc.rolle !== aktuelleRolle) return;
+
+      const li = document.createElement("li");
+      li.textContent = doc.name;
+
+      const vorschauBtn = document.createElement("button");
+      vorschauBtn.textContent = "👁️ Vorschau anzeigen";
+      const vorschau = document.createElement("div");
+      vorschau.style.display = "none";
+
+      if (doc.name.match(/\.pdf$/i)) {
+        const iframe = document.createElement("iframe");
+        iframe.src = doc.inhalt;
+        iframe.width = "100%";
+        iframe.height = "300";
+        vorschau.appendChild(iframe);
+      } else if (doc.name.match(/\.(png|jpe?g|gif)$/i)) {
+        const img = document.createElement("img");
+        img.src = doc.inhalt;
+        img.style.maxWidth = "100%";
+        vorschau.appendChild(img);
+      }
+
+      vorschauBtn.onclick = () => {
+        const sichtbar = vorschau.style.display === "block";
+        vorschau.style.display = sichtbar ? "none" : "block";
+        vorschauBtn.textContent = sichtbar ? "👁️ Vorschau anzeigen" : "🙈 Vorschau verbergen";
+      };
+
+      const löschenBtn = document.createElement("button");
+      löschenBtn.textContent = "🗑️";
+      löschenBtn.onclick = () => {
+        daten[kunde].splice(index, 1);
+        if (daten[kunde].length === 0) delete daten[kunde];
+        localStorage.setItem("dokumente", JSON.stringify(daten));
+        zeigeDokumente();
+      };
+
+      li.appendChild(vorschauBtn);
+      li.appendChild(löschenBtn);
+      li.appendChild(vorschau);
+      liste.appendChild(li);
+    });
+  }
+}
+
+// CSV Exporte
+function exportKundenCSV() {
+  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
+  if (!daten.length) return;
+  let csv = "Firma,Name,E-Mail,Typ,Notizen\n";
+  daten.forEach(k => {
+    csv += `"${k.firma}","${k.name}","${k.email}","${k.typ}","${k.notizen.replace(/"/g, '""')}"\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "kunden.csv";
+  link.click();
+}
+
+function exportTermineCSV() {
+  const daten = JSON.parse(localStorage.getItem("termine")) || {};
+  let csv = "Datum,Beschreibung\n";
+  for (const datum in daten) {
+    daten[datum].forEach(t => {
+      csv += `"${datum}","${t.replace(/"/g, '""')}"\n`;
+    });
+  }
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "termine.csv";
+  link.click();
+}
+
+function exportDokumenteCSV() {
+  const daten = JSON.parse(localStorage.getItem("dokumente")) || {};
+  let csv = "Kunde,Dateiname,Rolle\n";
+  for (const kunde in daten) {
+    daten[kunde].forEach(d => {
+      csv += `"${kunde}","${d.name}","${d.rolle}"\n`;
+    });
+  }
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "dokumente.csv";
+  link.click();
+}
+
+// Initialisierung
 document.addEventListener("DOMContentLoaded", () => {
   zeigeKunden();
   erstelleKalender();
   zeigeTermine();
   zeigeDokumente();
   aktualisiereKundenChart();
-  aktualisiereTermineChart(); // <== hinzugefügt
+  aktualisiereTermineChart();
 });
-// CSV Datei erstellen
-function exportKundenCSV() {
-  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
-  if (daten.length === 0) {
-    alert("Keine Kunden vorhanden.");
-    return;
-  }
-
-  let csvInhalt = "Firma,Name,E-Mail,Typ,Notizen\n";
-  daten.forEach(k => {
-    const zeile = [
-      `"${k.firma}"`,
-      `"${k.name}"`,
-      `"${k.email}"`,
-      `"${k.typ}"`,
-      `"${k.notizen.replace(/"/g, '""')}"`
-    ].join(",");
-    csvInhalt += zeile + "\n";
-  });
-
-  const blob = new Blob([csvInhalt], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "kundenliste.csv");
-  link.click();
-}
-
-//termine csv
-function exportTermineCSV() {
-  const termine = JSON.parse(localStorage.getItem("termine")) || {};
-  let csv = "Datum,Beschreibung\n";
-
-  for (const datum in termine) {
-    termine[datum].forEach(text => {
-      csv += `"${datum}","${text.replace(/"/g, '""')}"\n`;
-    });
-  }
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "termine.csv");
-  link.click();
-}
-//dokumente csv
-function exportDokumenteCSV() {
-  const daten = JSON.parse(localStorage.getItem("dokumente")) || {};
-  let csv = "Kunde,Dateiname,Rolle\n";
-
-  for (const kunde in daten) {
-    daten[kunde].forEach(doc => {
-      csv += `"${kunde}","${doc.name}","${doc.rolle}"\n`;
-    });
-  }
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "dokumente.csv");
-  link.click();
-}
-
