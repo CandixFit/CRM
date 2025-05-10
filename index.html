@@ -2,125 +2,80 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Das CRM Projekt</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM System</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 <body>
-  <header>
-    <h1>📊 Das CRM Projekt</h1>
-    <button id="modeToggle">Darkmode umschalten</button>
-  </header>
-
   <nav>
-    <button onclick="switchTab('kunden')">Kunden</button>
-    <button onclick="switchTab('kalender')">Kalender</button>
-    <button onclick="switchTab('dokumente')">Dokumente</button>
-    <button onclick="switchTab('kommunikation')">Kommunikation</button>
+    <a href="#" onclick="switchTab('kunden')">Kunden</a>
+    <a href="#" onclick="switchTab('kalender')">Kalender</a>
+    <a href="#" onclick="switchTab('dokumente')">Dokumente</a>
+    <button id="modeToggle">🌓 Darkmode umschalten</button>
   </nav>
 
-  <main>
-    <section id="kunden" class="tab active">
-
-      <input type="text" id="sucheKunden" placeholder="🔍 Kunden suchen..." oninput="filterKunden()" />
-
-
-      <h2>Kundendaten eingeben</h2>
-      <form id="kundenForm">
-        <input type="text" placeholder="Firmenname" required />
-        <input type="text" placeholder="Ansprechpartner" required />
-        <input type="email" placeholder="E-Mail" />
-        <select>
-          <option>Bestandskunde</option>
-          <option>Interessent</option>
-        </select>
-        <textarea placeholder="Notizen..."></textarea>
-        <button type="submit">Speichern</button>
-        <h3>📊 Kunden nach Typ</h3>
-        <canvas id="kundenChart" width="400" height="200"></canvas>
-        <button onclick="exportKundenCSV()">📤 Kunden als CSV exportieren</button>
-
-
-      </form>
-    </section>
-
-    <section id="kalender" class="tab">
-
-      <input type="text" id="sucheTermine" placeholder="🔍 Termine durchsuchen..." oninput="filterTermine()" />
-
-      <h2>📅 Kalender & Organizer</h2>
-      <div id="kalenderContainer"></div>
-      <div id="terminFormular">
-        <h4>📝 Termin hinzufügen</h4>
-        <label for="terminDatum">Datum:</label>
-        <input type="date" id="terminDatum" required />
-
-        <label for="terminText">Beschreibung:</label>
-        <input type="text" id="terminText" placeholder="z. B. Kundengespräch" maxlength="100" required />
-
-        <button onclick="speichereTermin()">Speichern</button>
-      </div>
-
-       <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-           <button onclick="wechselMonat(-1)">⏮</button>
-           <h3 id="monatAnzeige"></h3>
-           <button onclick="wechselMonat(1)">⏭</button>
-       </div>
-
-      <h3>Gespeicherte Termine</h3>
-      <ul id="terminListe"></ul>
-      <h3>📈 Termine pro Monat</h3>
-      <canvas id="termineChart" width="400" height="200"></canvas>
-      <button onclick="exportTermineCSV()">📤 Termine als CSV exportieren</button>
-
-
-    </section>
-
-
-
-
-    <section id="dokumente" class="tab">
-      <h2>📄 Dokumentenverwaltung</h2>
-
-      <label for="kundenNameDokument">Kunde auswählen / eingeben:</label>
-      <input type="text" id="kundenNameDokument" placeholder="z. B. Müller GmbH" />
-
-      <label for="rolleDokument">Rolle:</label>
-      <select id="rolleDokument">
-        <option value="Alle">Alle</option>
-        <option value="Vertrieb">Vertrieb</option>
-        <option value="Support">Support</option>
+  <!-- Kunden -->
+  <section id="kunden" class="tab active">
+    <h2>🧾 Kundenverwaltung</h2>
+    <form id="kundenForm">
+      <input type="text" name="firma" placeholder="Firma" required />
+      <input type="text" name="name" placeholder="Ansprechpartner" required />
+      <input type="email" name="email" placeholder="E-Mail" />
+      <select name="typ">
+        <option value="Bestandskunde">Bestandskunde</option>
+        <option value="Interessent">Interessent</option>
       </select>
+      <textarea name="notizen" placeholder="Notizen"></textarea>
+      <button type="submit">➕ Kunde speichern</button>
+    </form>
 
+    <input type="text" id="sucheKunden" placeholder="🔍 Kunden suchen..." oninput="filterKunden()" />
+    <h3>Gespeicherte Kunden</h3>
+    <ul id="kundenListe"></ul>
+    <button onclick="exportKundenCSV()">📤 Kunden als CSV exportieren</button>
 
+    <canvas id="kundenChart"></canvas>
+  </section>
 
+  <!-- Kalender -->
+  <section id="kalender" class="tab">
+    <h2>📅 Kalender</h2>
+    <button onclick="wechselMonat(-1)">⬅️ Vormonat</button>
+    <button onclick="wechselMonat(1)">➡️ Folgemonat</button>
+    <div id="monatAnzeige"></div>
+    <div id="kalenderContainer"></div>
 
-      <label for="dokumentUpload">Datei hochladen:</label>
-      <input type="file" id="dokumentUpload" />
+    <div id="terminFormular">
+      <h4>📝 Termin hinzufügen</h4>
+      <input type="date" id="terminDatum" />
+      <input type="text" id="terminText" placeholder="Terminbeschreibung" />
+      <button onclick="speichereTermin()">Speichern</button>
+    </div>
 
-      <button onclick="speichereDokument()">📥 Hochladen</button>
+    <input type="text" id="sucheTermine" placeholder="🔍 Termine durchsuchen..." oninput="filterTermine()" />
+    <ul id="terminListe"></ul>
+    <button onclick="exportTermineCSV()">📤 Termine als CSV exportieren</button>
+    <canvas id="termineChart"></canvas>
+  </section>
 
-      <h3>Hochgeladene Dokumente</h3>
-      <ul id="dokumentListe"></ul>
-      <button onclick="exportDokumenteCSV()">📤 Dokumente als CSV exportieren</button>
+  <!-- Dokumente -->
+  <section id="dokumente" class="tab">
+    <h2>📄 Dokumentenverwaltung</h2>
 
-    </section>
+    <input type="text" id="kundenNameDokument" placeholder="Kundennamen eingeben" />
+    <select id="rolleDokument">
+      <option value="Alle">Alle</option>
+      <option value="Vertrieb">Vertrieb</option>
+      <option value="Support">Support</option>
+    </select>
+    <input type="file" id="dokumentUpload" />
+    <button onclick="speichereDokument()">📥 Hochladen</button>
 
-
-    <section id="kommunikation" class="tab">
-      <h2>💬 Kommunikation</h2>
-      <p>(E-Mail-Funktionalität & Newsletter-Versand folgen)</p>
-    </section>
-      <h3>Gespeicherte Kunden</h3>
-      <ul id="kundenListe"></ul>
-
-  </main>
-
-  <footer>
-    <p>© 2025 – CRM by Can Cingöz</p>
-  </footer>
+    <h3>Gespeicherte Dokumente</h3>
+    <ul id="dokumentListe"></ul>
+    <button onclick="exportDokumenteCSV()">📤 Dokumente als CSV exportieren</button>
+  </section>
 
   <script src="script.js"></script>
 </body>
