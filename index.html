@@ -37,8 +37,22 @@
 
     <section id="kalender" class="tab">
       <h2>📅 Kalender & Organizer</h2>
-      <p>(Hier kannst du später Termine integrieren)</p>
+      <div id="kalenderContainer"></div>
+      <div id="terminFormular" style="display:none;">
+          <h4>Neuer Termin für <span id="ausgewähltesDatum"></span></h4>
+          <input type="text" id="terminText" placeholder="Terminbeschreibung" />
+          <button onclick="speichereTermin()">Speichern</button>
+      </div>
+       <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+           <button onclick="wechselMonat(-1)">⏮</button>
+           <h3 id="monatAnzeige"></h3>
+           <button onclick="wechselMonat(1)">⏭</button>
+       </div>
+
+      <h3>Gespeicherte Termine</h3>
+      <ul id="terminListe"></ul>
     </section>
+
 
     <section id="dokumente" class="tab">
       <h2>📄 Dokumentenverwaltung</h2>
@@ -49,6 +63,9 @@
       <h2>💬 Kommunikation</h2>
       <p>(E-Mail-Funktionalität & Newsletter-Versand folgen)</p>
     </section>
+      <h3>Gespeicherte Kunden</h3>
+      <ul id="kundenListe"></ul>
+
   </main>
 
   <footer>
