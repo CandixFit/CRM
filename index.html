@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Das CRM Projekt</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
   <header>
@@ -24,6 +26,7 @@
 
       <input type="text" id="sucheKunden" placeholder="🔍 Kunden suchen..." oninput="filterKunden()" />
 
+
       <h2>Kundendaten eingeben</h2>
       <form id="kundenForm">
         <input type="text" placeholder="Firmenname" required />
@@ -35,6 +38,11 @@
         </select>
         <textarea placeholder="Notizen..."></textarea>
         <button type="submit">Speichern</button>
+        <h3>📊 Kunden nach Typ</h3>
+        <canvas id="kundenChart" width="400" height="200"></canvas>
+        <button onclick="exportKundenCSV()">📤 Kunden als CSV exportieren</button>
+
+
       </form>
     </section>
 
@@ -57,6 +65,11 @@
 
       <h3>Gespeicherte Termine</h3>
       <ul id="terminListe"></ul>
+      <h3>📈 Termine pro Monat</h3>
+      <canvas id="termineChart" width="400" height="200"></canvas>
+      <button onclick="exportTermineCSV()">📤 Termine als CSV exportieren</button>
+
+
     </section>
 
 
@@ -85,6 +98,8 @@
 
       <h3>Hochgeladene Dokumente</h3>
       <ul id="dokumentListe"></ul>
+      <button onclick="exportDokumenteCSV()">📤 Dokumente als CSV exportieren</button>
+
     </section>
 
 
