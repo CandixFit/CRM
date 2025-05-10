@@ -82,3 +82,19 @@ footer {
   padding: 20px;
   background: #ccc;
 }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.kalenderTag:hover {
+  background-color: #d0eaff;
+}
