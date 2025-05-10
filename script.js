@@ -41,6 +41,8 @@ function zeigeKunden() {
       daten.splice(index, 1);
       localStorage.setItem("kunden", JSON.stringify(daten));
       zeigeKunden();
+      aktualisiereKundenChart();
+
     };
     const bearbeitenBtn = document.createElement("button");
     bearbeitenBtn.textContent = "✏️";
@@ -133,6 +135,8 @@ function speichereTermin() {
   document.getElementById("terminText").value = "";
   document.getElementById("terminFormular").style.display = "none";
   zeigeTermine();
+  aktualisiereTermineChart();
+
 }
 
 function zeigeTermine() {
@@ -213,6 +217,8 @@ document.addEventListener("DOMContentLoaded", () => {
   erstelleKalender();
   zeigeTermine();
   fülleKundenDropdown();
+  aktualisiereKundenChart();
+
 
 });
 //Funktion: Dropdown beim Start füllen
@@ -387,3 +393,152 @@ function filterTermine() {
     e.style.display = text.includes(suchbegriff) ? "" : "none";
   });
 }
+function aktualisiereKundenChart() {
+  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
+  let bestandskunden = 0;
+  let interessenten = 0;
+
+  daten.forEach(kunde => {
+    if (kunde.typ === "Bestandskunde") bestandskunden++;
+    else interessenten++;
+  });
+
+  const ctx = document.getElementById("kundenChart").getContext("2d");
+  if (window.kundenChartInstanz) window.kundenChartInstanz.destroy();
+
+  window.kundenChartInstanz = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Bestandskunden", "Interessenten"],
+      datasets: [{
+        label: "Anzahl Kunden",
+        data: [bestandskunden, interessenten],
+        backgroundColor: ["#4a90e2", "#f39c12"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: "Verteilung Kundentypen"
+        }
+      }
+    }
+  });
+}
+//diagramm kalender
+function aktualisiereTermineChart() {
+  const termine = JSON.parse(localStorage.getItem("termine")) || {};
+  const monatsZähler = Array(12).fill(0);
+
+  for (const datum in termine) {
+    const monat = new Date(datum).getMonth(); // 0 = Jan, 11 = Dez
+    monatsZähler[monat] += termine[datum].length;
+  }
+
+  const ctx = document.getElementById("termineChart").getContext("2d");
+  if (window.termineChartInstanz) window.termineChartInstanz.destroy();
+
+  window.termineChartInstanz = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [
+        "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+        "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"
+      ],
+      datasets: [{
+        label: "Termine pro Monat",
+        data: monatsZähler,
+        backgroundColor: "#4a90e2",
+        borderColor: "#4a90e2",
+        fill: false,
+        tension: 0.2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Termine nach Monat"
+        }
+      }
+    }
+  });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  zeigeKunden();
+  erstelleKalender();
+  zeigeTermine();
+  zeigeDokumente();
+  aktualisiereKundenChart();
+  aktualisiereTermineChart(); // <== hinzugefügt
+});
+// CSV Datei erstellen
+function exportKundenCSV() {
+  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
+  if (daten.length === 0) {
+    alert("Keine Kunden vorhanden.");
+    return;
+  }
+
+  let csvInhalt = "Firma,Name,E-Mail,Typ,Notizen\n";
+  daten.forEach(k => {
+    const zeile = [
+      `"${k.firma}"`,
+      `"${k.name}"`,
+      `"${k.email}"`,
+      `"${k.typ}"`,
+      `"${k.notizen.replace(/"/g, '""')}"`
+    ].join(",");
+    csvInhalt += zeile + "\n";
+  });
+
+  const blob = new Blob([csvInhalt], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "kundenliste.csv");
+  link.click();
+}
+
+//termine csv
+function exportTermineCSV() {
+  const termine = JSON.parse(localStorage.getItem("termine")) || {};
+  let csv = "Datum,Beschreibung\n";
+
+  for (const datum in termine) {
+    termine[datum].forEach(text => {
+      csv += `"${datum}","${text.replace(/"/g, '""')}"\n`;
+    });
+  }
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "termine.csv");
+  link.click();
+}
+//dokumente csv
+function exportDokumenteCSV() {
+  const daten = JSON.parse(localStorage.getItem("dokumente")) || {};
+  let csv = "Kunde,Dateiname,Rolle\n";
+
+  for (const kunde in daten) {
+    daten[kunde].forEach(doc => {
+      csv += `"${kunde}","${doc.name}","${doc.rolle}"\n`;
+    });
+  }
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "dokumente.csv");
+  link.click();
+}
+
