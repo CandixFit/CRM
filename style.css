@@ -98,3 +98,10 @@ th, td {
 .kalenderTag:hover {
   background-color: #d0eaff;
 }
+#uploadZone {
+  margin: 15px 0;
+  padding: 10px;
+  background: var(--card);
+  border: 2px dashed #ccc;
+  text-align: center;
+}

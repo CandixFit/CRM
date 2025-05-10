@@ -56,8 +56,19 @@
 
     <section id="dokumente" class="tab">
       <h2>📄 Dokumentenverwaltung</h2>
-      <p>(Upload-Funktion & Vertragsübersicht kommen noch)</p>
+
+      <label for="kundenNameDokument">Kunde auswählen / eingeben:</label>
+      <input type="text" id="kundenNameDokument" placeholder="z. B. Müller GmbH" />
+
+      <label for="dokumentUpload">Datei hochladen:</label>
+      <input type="file" id="dokumentUpload" />
+
+      <button onclick="speichereDokument()">📥 Hochladen</button>
+
+      <h3>Hochgeladene Dokumente</h3>
+      <ul id="dokumentListe"></ul>
     </section>
+
 
     <section id="kommunikation" class="tab">
       <h2>💬 Kommunikation</h2>
