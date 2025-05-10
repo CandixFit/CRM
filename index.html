@@ -52,11 +52,17 @@
 
       <h2>📅 Kalender & Organizer</h2>
       <div id="kalenderContainer"></div>
-      <div id="terminFormular" style="display:none;">
-          <h4>Neuer Termin für <span id="ausgewähltesDatum"></span></h4>
-          <input type="text" id="terminText" placeholder="Terminbeschreibung" />
-          <button onclick="speichereTermin()">Speichern</button>
+      <div id="terminFormular">
+        <h4>📝 Termin hinzufügen</h4>
+        <label for="terminDatum">Datum:</label>
+        <input type="date" id="terminDatum" required />
+
+        <label for="terminText">Beschreibung:</label>
+        <input type="text" id="terminText" placeholder="z. B. Kundengespräch" maxlength="100" required />
+
+        <button onclick="speichereTermin()">Speichern</button>
       </div>
+
        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
            <button onclick="wechselMonat(-1)">⏮</button>
            <h3 id="monatAnzeige"></h3>
