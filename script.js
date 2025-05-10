@@ -16,16 +16,42 @@ const kundenListe = document.getElementById("kundenListe");
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
+
   const [firma, name, email, typ, notizen] = Array.from(form.elements).map(el => el.value.trim());
 
-  const eintrag = { firma, name, email, typ, notizen };
+  // Validierung
+  if (!firma || !name || !typ) {
+    alert("Bitte Firma, Name und Typ ausfüllen.");
+    return;
+  }
+
+  if (email && !/^[\w.-]+@[\w.-]+\.\w{2,}$/.test(email)) {
+    alert("Bitte eine gültige E-Mail-Adresse eingeben.");
+    return;
+  }
+
+  if (firma.length > 50 || name.length > 50 || notizen.length > 250) {
+    alert("Bitte kürzere Eingaben machen (max 50 Zeichen für Firma/Name, 250 für Notizen).");
+    return;
+  }
+
+  // Duplikatsprüfung
   let daten = JSON.parse(localStorage.getItem("kunden")) || [];
+  const bereitsVorhanden = daten.some(k => k.firma === firma && k.email === email);
+  if (bereitsVorhanden) {
+    alert("Kunde mit dieser Firma und E-Mail existiert bereits.");
+    return;
+  }
+
+  const eintrag = { firma, name, email, typ, notizen };
   daten.push(eintrag);
   localStorage.setItem("kunden", JSON.stringify(daten));
 
   form.reset();
   zeigeKunden();
+  aktualisiereKundenChart();
 });
+
 
 function zeigeKunden() {
   kundenListe.innerHTML = "";
@@ -47,13 +73,28 @@ function zeigeKunden() {
     const bearbeitenBtn = document.createElement("button");
     bearbeitenBtn.textContent = "✏️";
     bearbeitenBtn.onclick = () => {
-        const neuerName = prompt("Neuer Ansprechpartner:", kunde.name);
-        if (neuerName) {
-        kunde.name = neuerName;
-        localStorage.setItem("kunden", JSON.stringify(daten));
-        zeigeKunden();
-        }
+      const neuerName = prompt("Neuer Name:", kunde.name);
+      const neueFirma = prompt("Neue Firma:", kunde.firma);
+      const neueEmail = prompt("Neue E-Mail:", kunde.email);
+      const neuerTyp = prompt("Neuer Typ (Bestandskunde / Interessent):", kunde.typ);
+      const neueNotizen = prompt("Neue Notizen:", kunde.notizen);
+
+      if (!neuerName || !neueFirma || !neuerTyp) {
+        alert("Name, Firma und Typ dürfen nicht leer sein.");
+        return;
+      }
+
+      kunde.name = neuerName.trim();
+      kunde.firma = neueFirma.trim();
+      kunde.email = neueEmail.trim();
+      kunde.typ = neuerTyp.trim();
+      kunde.notizen = neueNotizen.trim();
+
+      localStorage.setItem("kunden", JSON.stringify(daten));
+      zeigeKunden();
+      aktualisiereKundenChart();
     };
+
     li.appendChild(bearbeitenBtn);
 
 
@@ -117,27 +158,30 @@ function erstelleKalender() {
 
 function zeigeFormular(jahr, monat, tag) {
   const datum = `${jahr}-${String(monat).padStart(2, '0')}-${String(tag).padStart(2, '0')}`;
-  document.getElementById("ausgewähltesDatum").textContent = datum;
-  document.getElementById("terminFormular").style.display = "block";
-  document.getElementById("terminText").dataset.datum = datum;
+  document.getElementById("terminDatum").value = datum;
 }
 
+
 function speichereTermin() {
+  const datum = document.getElementById("terminDatum").value;
   const text = document.getElementById("terminText").value.trim();
-  const datum = document.getElementById("terminText").dataset.datum;
-  if (!text) return;
+
+  if (!datum || !text) {
+    alert("Bitte Datum und Beschreibung eingeben.");
+    return;
+  }
 
   let termine = JSON.parse(localStorage.getItem("termine")) || {};
   if (!termine[datum]) termine[datum] = [];
   termine[datum].push(text);
+
   localStorage.setItem("termine", JSON.stringify(termine));
 
   document.getElementById("terminText").value = "";
-  document.getElementById("terminFormular").style.display = "none";
   zeigeTermine();
   aktualisiereTermineChart();
-
 }
+
 
 function zeigeTermine() {
   const liste = document.getElementById("terminListe");
@@ -335,10 +379,52 @@ function zeigeDokumente() {
       li.textContent = doc.name;
 
       const öffnenLink = document.createElement("a");
-      öffnenLink.href = doc.inhalt;
-      öffnenLink.download = doc.name;
-      öffnenLink.textContent = "⬇️";
       öffnenLink.style.marginLeft = "10px";
+
+        // Vorschau-Button (PDF oder Bild)
+        const isVorschauDatei = doc.name.match(/\.(pdf|png|jpe?g|gif)$/i);
+        if (isVorschauDatei) {
+          const vorschauBtn = document.createElement("button");
+          vorschauBtn.textContent = "👁️ Vorschau anzeigen";
+          vorschauBtn.style.marginLeft = "10px";
+
+          const vorschauBereich = document.createElement("div");
+          vorschauBereich.style.display = "none";
+          vorschauBereich.style.marginTop = "10px";
+
+          if (doc.name.match(/\.pdf$/i)) {
+            const iframe = document.createElement("iframe");
+            iframe.src = doc.inhalt;
+            iframe.width = "100%";
+            iframe.height = "300";
+            iframe.style.border = "1px solid #ccc";
+            vorschauBereich.appendChild(iframe);
+          } else {
+            const bild = document.createElement("img");
+            bild.src = doc.inhalt;
+            bild.style.maxWidth = "100%";
+            bild.style.maxHeight = "200px";
+            vorschauBereich.appendChild(bild);
+          }
+
+          vorschauBtn.onclick = () => {
+            const sichtbar = vorschauBereich.style.display === "block";
+            vorschauBereich.style.display = sichtbar ? "none" : "block";
+            vorschauBtn.textContent = sichtbar ? "👁️ Vorschau anzeigen" : "🙈 Vorschau verbergen";
+          };
+
+          li.appendChild(vorschauBtn);
+          li.appendChild(vorschauBereich);
+        } else {
+          const öffnenLink = document.createElement("a");
+          öffnenLink.href = doc.inhalt;
+          öffnenLink.download = doc.name;
+          öffnenLink.textContent = "⬇️";
+          öffnenLink.style.marginLeft = "10px";
+          li.appendChild(öffnenLink);
+        }
+
+
 
       const löschenBtn = document.createElement("button");
       löschenBtn.textContent = "🗑️";
