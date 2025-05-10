@@ -21,6 +21,9 @@
 
   <main>
     <section id="kunden" class="tab active">
+
+      <input type="text" id="sucheKunden" placeholder="🔍 Kunden suchen..." oninput="filterKunden()" />
+
       <h2>Kundendaten eingeben</h2>
       <form id="kundenForm">
         <input type="text" placeholder="Firmenname" required />
@@ -36,6 +39,9 @@
     </section>
 
     <section id="kalender" class="tab">
+
+      <input type="text" id="sucheTermine" placeholder="🔍 Termine durchsuchen..." oninput="filterTermine()" />
+
       <h2>📅 Kalender & Organizer</h2>
       <div id="kalenderContainer"></div>
       <div id="terminFormular" style="display:none;">
@@ -54,11 +60,23 @@
     </section>
 
 
+
+
     <section id="dokumente" class="tab">
       <h2>📄 Dokumentenverwaltung</h2>
 
       <label for="kundenNameDokument">Kunde auswählen / eingeben:</label>
       <input type="text" id="kundenNameDokument" placeholder="z. B. Müller GmbH" />
+
+      <label for="rolleDokument">Rolle:</label>
+      <select id="rolleDokument">
+        <option value="Alle">Alle</option>
+        <option value="Vertrieb">Vertrieb</option>
+        <option value="Support">Support</option>
+      </select>
+
+
+
 
       <label for="dokumentUpload">Datei hochladen:</label>
       <input type="file" id="dokumentUpload" />

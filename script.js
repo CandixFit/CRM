@@ -289,6 +289,7 @@ function speichereDokument() {
   const kunde = document.getElementById("kundenNameDokument").value.trim();
   const dateiInput = document.getElementById("dokumentUpload");
   const datei = dateiInput.files[0];
+  const rolle = document.getElementById("rolleDokument").value;
 
   if (!kunde || !datei) {
     alert("Bitte Kundennamen und eine Datei angeben.");
@@ -299,7 +300,9 @@ function speichereDokument() {
   reader.onload = function (e) {
     let daten = JSON.parse(localStorage.getItem("dokumente")) || {};
     if (!daten[kunde]) daten[kunde] = [];
-    daten[kunde].push({ name: datei.name, inhalt: e.target.result });
+
+    daten[kunde].push({ name: datei.name, inhalt: e.target.result, rolle });
+
     localStorage.setItem("dokumente", JSON.stringify(daten));
     zeigeDokumente();
     document.getElementById("dokumentUpload").value = "";
@@ -307,7 +310,10 @@ function speichereDokument() {
   reader.readAsDataURL(datei);
 }
 
+
 function zeigeDokumente() {
+  const aktuelleRolle = document.getElementById("rolleDokument").value;
+
   const liste = document.getElementById("dokumentListe");
   liste.innerHTML = "";
   const daten = JSON.parse(localStorage.getItem("dokumente")) || {};
@@ -316,6 +322,7 @@ function zeigeDokumente() {
     const unterTitel = document.createElement("h4");
     unterTitel.textContent = `📁 ${kunde}`;
     liste.appendChild(unterTitel);
+
 
     daten[kunde].forEach((doc, index) => {
       const li = document.createElement("li");
@@ -361,4 +368,22 @@ function wechselMonat(schritt) {
     aktuellesJahr--;
   }
   erstelleKalender();
+}
+//filter für kunden
+function filterKunden() {
+  const suchbegriff = document.getElementById("sucheKunden").value.toLowerCase();
+  const einträge = document.querySelectorAll("#kundenListe li");
+  einträge.forEach(e => {
+    const text = e.textContent.toLowerCase();
+    e.style.display = text.includes(suchbegriff) ? "" : "none";
+  });
+}
+//filter für termine
+function filterTermine() {
+  const suchbegriff = document.getElementById("sucheTermine").value.toLowerCase();
+  const einträge = document.querySelectorAll("#terminListe li");
+  einträge.forEach(e => {
+    const text = e.textContent.toLowerCase();
+    e.style.display = text.includes(suchbegriff) ? "" : "none";
+  });
 }
