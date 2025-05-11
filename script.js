@@ -45,29 +45,33 @@ function zeigeKunden() {
   const daten = JSON.parse(localStorage.getItem("kunden")) || [];
 
   daten.forEach((kunde, index) => {
-    const li = document.createElement("li");
-    li.textContent = `${kunde.firma} – ${kunde.name} (${kunde.typ})`;
+  const li = document.createElement("li");
 
+  const img = document.createElement("img");
+  img.src = kunde.bild || "img/default-avatar.png";
+  img.alt = "Profilbild";
+  img.style.width = "40px";
+  img.style.height = "40px";
+  img.style.borderRadius = "50%";
+  img.style.marginRight = "10px";
+  img.style.verticalAlign = "middle";
+
+  const span = document.createElement("span");
+  span.textContent = `${kunde.firma} – ${kunde.name} (${kunde.typ})`;
+  li.appendChild(img);
+  li.appendChild(span)
     const bearbeitenBtn = document.createElement("button");
     bearbeitenBtn.textContent = "✏️";
     bearbeitenBtn.onclick = () => {
-      const neuerName = prompt("Neuer Name:", kunde.name);
-      const neueFirma = prompt("Neue Firma:", kunde.firma);
-      const neueEmail = prompt("Neue E-Mail:", kunde.email);
-      const neuerTyp = prompt("Neuer Typ (Bestandskunde/Interessent):", kunde.typ);
-      const neueNotizen = prompt("Neue Notizen:", kunde.notizen);
+      document.getElementById("sidebarIndex").value = index;
+      document.getElementById("sidebarFirma").value = kunde.firma;
+      document.getElementById("sidebarName").value = kunde.name;
+      document.getElementById("sidebarEmail").value = kunde.email;
+      document.getElementById("sidebarTyp").value = kunde.typ;
+      document.getElementById("sidebarNotizen").value = kunde.notizen;
+      document.getElementById("kundenSidebar").classList.add("show");
+      document.getElementById("sidebarBildVorschau").src = kunde.bild || "img/default-avatar.png";
 
-      if (!neuerName || !neueFirma || !neuerTyp) return;
-
-      kunde.name = neuerName.trim();
-      kunde.firma = neueFirma.trim();
-      kunde.email = neueEmail.trim();
-      kunde.typ = neuerTyp.trim();
-      kunde.notizen = neueNotizen.trim();
-
-      localStorage.setItem("kunden", JSON.stringify(daten));
-      zeigeKunden();
-      aktualisiereKundenChart();
     };
 
     const löschenBtn = document.createElement("button");
@@ -201,24 +205,14 @@ function zeigeTermine() {
     const bearbeitenBtn = document.createElement("button");
     bearbeitenBtn.textContent = "✏️";
     bearbeitenBtn.onclick = () => {
-      const neueBeschreibung = prompt("Neue Beschreibung:", eintrag.text);
-      const neuesDatum = prompt("Neues Datum (YYYY-MM-DD):", eintrag.datum);
-
-      if (neueBeschreibung && neuesDatum) {
-        const termine = JSON.parse(localStorage.getItem("termine")) || {};
-
-        // alten Eintrag löschen
-        termine[eintrag.datum].splice(eintrag.index, 1);
-        if (termine[eintrag.datum].length === 0) delete termine[eintrag.datum];
-
-        // neuen Eintrag speichern
-        if (!termine[neuesDatum]) termine[neuesDatum] = [];
-        termine[neuesDatum].push(neueBeschreibung);
-
-        localStorage.setItem("termine", JSON.stringify(termine));
-        zeigeTermine();
-        aktualisiereTermineChart();
-      }
+      document.getElementById("terminSidebarIndex").value = eintrag.index;
+      document.getElementById("terminFirma").value = eintrag.firma || "";
+      document.getElementById("terminPerson").value = eintrag.name || "";
+      document.getElementById("terminDatumBearbeiten").value = eintrag.datum;
+      document.getElementById("terminNotiz").value = eintrag.text;
+      document.getElementById("terminBildVorschau").src = eintrag.bild || "img/default-avatar.png";
+      document.getElementById("terminBild").value = "";
+      document.getElementById("terminSidebar").classList.add("show");
     };
 
 
@@ -418,4 +412,85 @@ document.addEventListener("DOMContentLoaded", () => {
   zeigeDokumente();
   aktualisiereKundenChart();
   aktualisiereTermineChart();
+});
+document.getElementById("sidebarForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
+  const index = parseInt(document.getElementById("sidebarIndex").value);
+
+  const firma = document.getElementById("sidebarFirma").value.trim();
+  const name = document.getElementById("sidebarName").value.trim();
+  const email = document.getElementById("sidebarEmail").value.trim();
+  const typ = document.getElementById("sidebarTyp").value;
+  const notizen = document.getElementById("sidebarNotizen").value.trim();
+  const bildDatei = document.getElementById("sidebarBild").files[0];
+
+  const speichereKunde = (bild) => {
+    daten[index] = {
+      firma,
+      name,
+      email,
+      typ,
+      notizen,
+      bild: bild || daten[index].bild || "img/default-avatar.png"
+    };
+
+    localStorage.setItem("kunden", JSON.stringify(daten));
+    zeigeKunden();
+    aktualisiereKundenChart();
+    schließeSidebar();
+  };
+
+  if (bildDatei) {
+    const reader = new FileReader();
+    reader.onload = () => speichereKunde(reader.result);
+    reader.readAsDataURL(bildDatei);
+  } else {
+    speichereKunde(); // nutzt vorhandenes Bild
+  }
+});
+
+
+function schließeSidebar() {
+  document.getElementById("kundenSidebar").classList.remove("show");
+}
+function schließeTerminSidebar() {
+  document.getElementById("terminSidebar").classList.remove("show");
+}
+
+document.getElementById("terminSidebarForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const datum = document.getElementById("terminDatumBearbeiten").value;
+  const firma = document.getElementById("terminFirma").value.trim();
+  const name = document.getElementById("terminPerson").value.trim();
+  const notiz = document.getElementById("terminNotiz").value.trim();
+  const bildDatei = document.getElementById("terminBild").files[0];
+  const index = parseInt(document.getElementById("terminSidebarIndex").value);
+
+  const termine = JSON.parse(localStorage.getItem("termine")) || {};
+
+  const speichereTermin = (bild) => {
+    if (!termine[datum]) termine[datum] = [];
+
+    termine[datum][index] = {
+      text: notiz,
+      firma,
+      name,
+      datum,
+      bild: bild || (termine[datum][index] && termine[datum][index].bild) || "img/default-avatar.png"
+    };
+
+    localStorage.setItem("termine", JSON.stringify(termine));
+    zeigeTermine();
+    schließeTerminSidebar();
+  };
+
+  if (bildDatei) {
+    const reader = new FileReader();
+    reader.onload = () => speichereTermin(reader.result);
+    reader.readAsDataURL(bildDatei);
+  } else {
+    speichereTermin();
+  }
 });
