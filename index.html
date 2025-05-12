@@ -66,8 +66,7 @@
     <input type="text" id="terminPerson" placeholder="Ansprechpartner" required />
     <input type="date" id="terminDatumBearbeiten" required />
     <textarea id="terminNotiz" placeholder="Notiz" required></textarea>
-    <img id="terminBildVorschau" src="img/default-avatar.png" alt="Bild" style="max-width: 100%; border-radius: 8px; margin-bottom: 10px;" />
-    <input type="file" id="terminBild" accept="image/*" />
+
     <button type="submit">💾 Speichern</button>
     <button type="button" onclick="schließeTerminSidebar()">❌ Abbrechen</button>
   </form>
@@ -78,17 +77,24 @@
   <!-- Kalender -->
   <section id="kalender" class="tab">
     <h2>📅 Kalender</h2>
-    <button onclick="wechselMonat(-1)">⬅️ Vormonat</button>
-    <button onclick="wechselMonat(1)">➡️ Folgemonat</button>
+    <div class="monats-navigation">
+      <button onclick="wechselMonat(-1)">⬅️</button>
+      <div id="monatAnzeige"></div>
+      <button onclick="wechselMonat(1)">➡️</button>
+    </div>
+
     <div id="monatAnzeige"></div>
     <div id="kalenderContainer"></div>
 
     <div id="terminFormular">
       <h4>📝 Termin hinzufügen</h4>
       <input type="date" id="terminDatum" />
+      <input type="text" id="terminFirmaNeu" placeholder="Firma" />
+      <input type="text" id="terminPersonNeu" placeholder="Ansprechpartner" />
       <input type="text" id="terminText" placeholder="Terminbeschreibung" />
       <button onclick="speichereTermin()">Speichern</button>
     </div>
+
 
     <input type="text" id="sucheTermine" placeholder="🔍 Termine durchsuchen..." oninput="filterTermine()" />
     <ul id="terminListe"></ul>

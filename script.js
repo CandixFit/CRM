@@ -60,6 +60,18 @@ function zeigeKunden() {
   span.textContent = `${kunde.firma} – ${kunde.name} (${kunde.typ})`;
   li.appendChild(img);
   li.appendChild(span)
+
+  if (kunde.notizen) {
+      const notizVorschau = document.createElement("p");
+      notizVorschau.textContent = kunde.notizen.length > 100
+        ? kunde.notizen.substring(0, 100) + "…"
+        : kunde.notizen;
+      notizVorschau.style.margin = "10px 0";
+      notizVorschau.style.fontSize = "0.9rem";
+      notizVorschau.style.color = "#555";
+      li.appendChild(notizVorschau);
+    }
+
     const bearbeitenBtn = document.createElement("button");
     bearbeitenBtn.textContent = "✏️";
     bearbeitenBtn.onclick = () => {
@@ -71,7 +83,6 @@ function zeigeKunden() {
       document.getElementById("sidebarNotizen").value = kunde.notizen;
       document.getElementById("kundenSidebar").classList.add("show");
       document.getElementById("sidebarBildVorschau").src = kunde.bild || "img/default-avatar.png";
-
     };
 
     const löschenBtn = document.createElement("button");
@@ -83,8 +94,15 @@ function zeigeKunden() {
       aktualisiereKundenChart();
     };
 
-    li.appendChild(bearbeitenBtn);
-    li.appendChild(löschenBtn);
+    // 👉 NEU: Button-Container
+    const buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("kunden-button-container");
+    buttonContainer.appendChild(bearbeitenBtn);
+    buttonContainer.appendChild(löschenBtn);
+
+    // Buttons in Container statt direkt ans <li>
+    li.appendChild(buttonContainer);
+
     liste.appendChild(li);
   });
 }
@@ -112,7 +130,8 @@ function aktualisiereKundenChart() {
       datasets: [{
         label: "Anzahl",
         data: [bestandskunden, interessenten],
-        backgroundColor: ["#3498db", "#f39c12"]
+        backgroundColor: ["#2ecc71", "#3498db"]
+
       }]
     }
   });
@@ -146,6 +165,14 @@ function erstelleKalender() {
     let termine = JSON.parse(localStorage.getItem("termine")) || {};
     let selektierteZelle = null;
 
+    const feiertage = [
+      `${aktuellesJahr}-01-01`, // Neujahr
+      `${aktuellesJahr}-10-03`, // Tag der Deutschen Einheit
+      `${aktuellesJahr}-12-25`, // Weihnachten
+      `${aktuellesJahr}-12-26`  // 2. Weihnachtstag
+    ];
+
+
     for (let tag = 1; tag <= letzterTag; tag++) {
       if (zeile.cells.length === 7) zeile = kalender.insertRow();
       const zelle = zeile.insertCell();
@@ -153,6 +180,10 @@ function erstelleKalender() {
       zelle.classList.add("kalenderTag");
 
       const datumKey = `${aktuellesJahr}-${String(aktuellerMonat + 1).padStart(2, '0')}-${String(tag).padStart(2, '0')}`;
+      if (feiertage.includes(datumKey)) {
+          zelle.classList.add("feiertag");
+        }
+
       if (termine[datumKey]) {
           zelle.classList.add("mitTermin");
           zelle.title = termine[datumKey].join(" • ");
@@ -175,14 +206,23 @@ function erstelleKalender() {
 function speichereTermin() {
   const datum = document.getElementById("terminDatum").value;
   const text = document.getElementById("terminText").value.trim();
+  const firma = document.getElementById("terminFirmaNeu").value.trim();
+  const name = document.getElementById("terminPersonNeu").value.trim();
+
   if (!datum || !text) return;
 
   let termine = JSON.parse(localStorage.getItem("termine")) || {};
   if (!termine[datum]) termine[datum] = [];
-  termine[datum].push(text);
+
+  termine[datum].push({ text, firma, name, datum });
+
   localStorage.setItem("termine", JSON.stringify(termine));
 
+  // Eingabefelder zurücksetzen
   document.getElementById("terminText").value = "";
+  document.getElementById("terminFirmaNeu").value = "";
+  document.getElementById("terminPersonNeu").value = "";
+
   zeigeTermine();
   aktualisiereTermineChart();
 }
@@ -194,14 +234,42 @@ function zeigeTermine() {
 
   const alleTermine = [];
   for (const datum in termine) {
-    termine[datum].forEach((text, i) => {
-      alleTermine.push({ datum, text, index: i });
+    termine[datum].forEach((eintrag, i) => {
+      if (typeof eintrag === "object") {
+        alleTermine.push({ datum, text: eintrag.text, index: i, firma: eintrag.firma, name: eintrag.name });
+      } else {
+        alleTermine.push({ datum, text: eintrag, index: i });
+      }
     });
+
   }
 
   alleTermine.forEach(eintrag => {
     const li = document.createElement("li");
-    li.textContent = `📅 ${eintrag.datum}: ${eintrag.text}`;
+
+    const titel = document.createElement("strong");
+    titel.textContent = `📅 ${eintrag.datum}`;
+
+    const beschreibung = document.createElement("p");
+    beschreibung.textContent = eintrag.text;
+
+    const name = document.createElement("p");
+    name.textContent = `👤 ${eintrag.name || "Kein Name"}`;
+    name.style.fontStyle = "italic";
+    name.style.margin = "0";
+
+    const firma = document.createElement("p");
+    firma.textContent = `🏢 ${eintrag.firma || "Keine Firma"}`;
+    firma.style.margin = "0";
+    firma.style.fontSize = "0.9rem";
+    firma.style.color = "#555";
+
+    li.appendChild(titel);
+    li.appendChild(beschreibung);
+    li.appendChild(name);
+    li.appendChild(firma);
+
+
     const bearbeitenBtn = document.createElement("button");
     bearbeitenBtn.textContent = "✏️";
     bearbeitenBtn.onclick = () => {
@@ -210,8 +278,7 @@ function zeigeTermine() {
       document.getElementById("terminPerson").value = eintrag.name || "";
       document.getElementById("terminDatumBearbeiten").value = eintrag.datum;
       document.getElementById("terminNotiz").value = eintrag.text;
-      document.getElementById("terminBildVorschau").src = eintrag.bild || "img/default-avatar.png";
-      document.getElementById("terminBild").value = "";
+
       document.getElementById("terminSidebar").classList.add("show");
     };
 
@@ -461,36 +528,34 @@ function schließeTerminSidebar() {
 document.getElementById("terminSidebarForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const datum = document.getElementById("terminDatumBearbeiten").value;
+  const neuesDatum = document.getElementById("terminDatumBearbeiten").value;
   const firma = document.getElementById("terminFirma").value.trim();
   const name = document.getElementById("terminPerson").value.trim();
   const notiz = document.getElementById("terminNotiz").value.trim();
-  const bildDatei = document.getElementById("terminBild").files[0];
   const index = parseInt(document.getElementById("terminSidebarIndex").value);
 
   const termine = JSON.parse(localStorage.getItem("termine")) || {};
 
-  const speichereTermin = (bild) => {
-    if (!termine[datum]) termine[datum] = [];
-
-    termine[datum][index] = {
-      text: notiz,
-      firma,
-      name,
-      datum,
-      bild: bild || (termine[datum][index] && termine[datum][index].bild) || "img/default-avatar.png"
-    };
-
-    localStorage.setItem("termine", JSON.stringify(termine));
-    zeigeTermine();
-    schließeTerminSidebar();
-  };
-
-  if (bildDatei) {
-    const reader = new FileReader();
-    reader.onload = () => speichereTermin(reader.result);
-    reader.readAsDataURL(bildDatei);
-  } else {
-    speichereTermin();
+  // alten Eintrag finden und entfernen
+  for (const datum in termine) {
+    const einträge = termine[datum];
+    if (datum === neuesDatum) continue; // im gleichen Datum, kein Entfernen nötig
+    if (einträge[index]?.text === notiz) {
+      einträge.splice(index, 1);
+      if (einträge.length === 0) delete termine[datum];
+      break;
+    }
   }
+
+  // neuen Eintrag speichern
+  if (!termine[neuesDatum]) termine[neuesDatum] = [];
+  termine[neuesDatum][index] = { text: notiz, firma, name, datum: neuesDatum };
+
+  localStorage.setItem("termine", JSON.stringify(termine));
+  zeigeTermine();
+  aktualisiereTermineChart();
+  schließeTerminSidebar();
+
+  // Bestätigung
+  alert("✔️ Termin wurde gespeichert.");
 });
