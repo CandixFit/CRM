@@ -1,9 +1,18 @@
 // Tab-Wechsel
 function switchTab(id) {
+  // Erlaube nur Login-Tab wenn nicht eingeloggt
+  if (id !== "login" && !getAktuellerNutzer()) {
+    document.getElementById('loginModal').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('loginModal').classList.remove('show');
+    }, 3000)
+    switchTab("login");
+    return;
+  }
+
   document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
-
 // Darkmode
 document.getElementById("modeToggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
@@ -511,6 +520,15 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     switchTab("feed");
   }
+  if (!getAktuellerNutzer() && !window.location.hash.includes('login')) {
+    switchTab("login");
+  }
+  // Pflichtfelder besser hervorheben
+document.querySelectorAll('[required]').forEach(el => {
+  el.labels?.forEach(label => {
+    label.classList.add('required-field');
+  });
+});
 });
 document.getElementById("sidebarForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -620,8 +638,10 @@ function zeigeAktuellenNutzer() {
   const el = document.getElementById("aktuellerNutzer");
   if (nutzer) {
     el.textContent = `👤 Eingeloggt als: ${nutzer}`;
+    el.style.display = "block"; //hier stellen wir die sichtbarkeit sicher
   } else {
     el.textContent = "";
+    el.style.display = "none";
   }
 }
 
@@ -667,4 +687,17 @@ function logout() {
     zeigeAktuellenNutzer();
     switchTab("login");
     // logout
+}
+// funktion für Login-Sperre falls nicht eingeloggt
+function handleTabSwitch(tabId) {
+  if (tabId !== "feed" && tabId !== "login" && !getAktuellerNutzer()) {
+    document.getElementById('loginModal').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('loginModal').classList.remove('show');
+    }, 3000)
+    switchTab("login");
+    return false;
+  }
+  switchTab(tabId);
+  return false;
 }

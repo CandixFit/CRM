@@ -9,11 +9,11 @@
 </head>
 <body>
   <nav>
-      <span id="aktuellerNutzer"></span>
-      <a href="#" onclick="switchTab('feed')">🏠 Newsfeed</a>
-      <a href="#" onclick="switchTab('kunden')">Kunden</a>
-      <a href="#" onclick="switchTab('kalender')">Kalender</a>
-      <a href="#" onclick="switchTab('dokumente')">Dokumente</a>
+      <span id="aktuellerNutzer" class="login-status"></span>
+      <a href="#" onclick="handleTabSwitch('feed')">🏠 Newsfeed</a>
+      <a href="#" onclick="handleTabSwitch('kunden')">Kunden</a>
+      <a href="#" onclick="handleTabSwitch('kalender')">Kalender</a>
+      <a href="#" onclick="handleTabSwitch('dokumente')">Dokumente</a>
       <button id="modeToggle">🌓 Darkmode umschalten</button>
       <button onclick="logout()">🔒 Ausloggen</button>
   </nav>
@@ -39,28 +39,34 @@
 
 
 
+
   <!-- Kunden -->
-  <section id="kunden" class="tab active">
-    <h2>🧾 Kundenverwaltung</h2>
+  <!-- Kunden -->
+<section id="kunden" class="tab">
+  <h2>🧾 Kundenverwaltung</h2>
+
+  <div class="kunden-form-container">
     <form id="kundenForm">
-      <input type="text" name="firma" placeholder="Firma" required />
-      <input type="text" name="name" placeholder="Ansprechpartner" required />
+      <input type="text" name="firma" placeholder="Firma *" required />
+      <input type="text" name="name" placeholder="Ansprechpartner *" required />
       <input type="email" name="email" placeholder="E-Mail" />
       <select name="typ">
+        <option value="" disabled selected>Kundentyp wählen *</option>
         <option value="Bestandskunde">Bestandskunde</option>
         <option value="Interessent">Interessent</option>
       </select>
       <textarea name="notizen" placeholder="Notizen"></textarea>
       <button type="submit">➕ Kunde speichern</button>
     </form>
+  </div>
 
-    <input type="text" id="sucheKunden" placeholder="🔍 Kunden suchen..." oninput="filterKunden()" />
-    <h3>Gespeicherte Kunden</h3>
-    <ul id="kundenListe"></ul>
-    <button onclick="exportKundenCSV()">📤 Kunden als CSV exportieren</button>
+  <input type="text" id="sucheKunden" placeholder="🔍 Kunden suchen..." oninput="filterKunden()" />
+  <h3>Gespeicherte Kunden</h3>
+  <ul id="kundenListe"></ul>
+  <button onclick="exportKundenCSV()">📤 Kunden als CSV exportieren</button>
 
-    <canvas id="kundenChart"></canvas>
-  </section>
+  <canvas id="kundenChart"></canvas>
+</section>
   <!-- sidebar -->
   <div id="kundenSidebar" class="sidebar">
     <h3>Kunde bearbeiten</h3>
@@ -145,5 +151,12 @@
   </section>
 
   <script src="script.js"></script>
+<!-- Login Modal -->
+<div id="loginModal" class="modal">
+  <div class="modal-content">
+    <p>Bitte zuerst einloggen</p>
+    <button onclick="document.getElementById('loginModal').classList.remove('show')">OK</button>
+  </div>
+</div>
 </body>
 </html>
