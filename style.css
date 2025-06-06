@@ -600,7 +600,7 @@ nav a {
   transition: transform 0.3s ease;
 }
 .modal.show .modal-content {
-    transition: translateY(0);
+    transform: translateY(0);
 }
 
 .modal-content button {
@@ -623,3 +623,51 @@ body.dark .modal-content {
   background-color: #34495e;
   color: #ecf0f1;
 }
+#logoutButton {
+  display: none; /* Standardmäßig versteckt */
+}
+
+.logged-in #logoutButton {
+  display: block; /* Nur sichtbar wenn eingeloggt */
+}
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+}
+
+.nav-left, .nav-center, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Mobile Ansicht */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-left, .nav-center, .nav-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #aktuellerNutzer {
+    order: -1;
+    margin-bottom: 10px;
+  }
+}
+/* Kundentyp Farben in Listen */
+.kunde-A { border-left: 4px solid #2ecc71; }
+.kunde-B { border-left: 4px solid #3498db; }
+.kunde-C { border-left: 4px solid #f39c12; }
+.kunde-Neukunde { border-left: 4px solid #e74c3c; }
+
+/* Dark Mode Anpassungen */
+body.dark .kunde-A { border-left-color: #27ae60; }
+body.dark .kunde-B { border-left-color: #2980b9; }
+body.dark .kunde-C { border-left-color: #d35400; }
+body.dark .kunde-Neukunde { border-left-color: #c0392b; }

@@ -65,7 +65,7 @@ form.addEventListener("submit", (e) => {
     form.reset();
     zeigeKunden();
     aktualisiereKundenChart();
-    erstelleFeedEintrag("neuer_kunde", "", firma);
+    erstelleFeedEintrag("neuer_kunde", `hat ${firma} als neuen Kunden angelegt.`);  // ✅ Klar
 
 });
 
@@ -77,6 +77,7 @@ function zeigeKunden() {
 
   daten.forEach((kunde, index) => {
   const li = document.createElement("li");
+  li.classList.add(`kunde-${kunde.typ.charAt(0)}`);
 
   const img = document.createElement("img");
   img.src = kunde.bild || "img/default-avatar.png";
@@ -137,7 +138,25 @@ function zeigeKunden() {
     liste.appendChild(li);
   });
 }
+//bestehende Daten migrieren
+function migriereKundentypen() {
+  const daten = JSON.parse(localStorage.getItem("kunden")) || [];
+  const mapping = {
+    "Bestandskunde": "B-Kunde",
+    "Interessent": "Neukunde"
+  };
 
+  daten.forEach(k => {
+    if (mapping[k.typ]) {
+      k.typ = mapping[k.typ];
+    }
+  });
+
+  localStorage.setItem("kunden", JSON.stringify(daten));
+}
+
+// Einmalig aufrufen:
+migriereKundentypen();
 // Suche
 function filterKunden() {
   const begriff = document.getElementById("sucheKunden").value.toLowerCase();
@@ -149,21 +168,41 @@ function filterKunden() {
 // Kunden-Chart
 function aktualisiereKundenChart() {
   const daten = JSON.parse(localStorage.getItem("kunden")) || [];
-  let bestandskunden = 0, interessenten = 0;
-  daten.forEach(k => k.typ === "Bestandskunde" ? bestandskunden++ : interessenten++);
+  let aKunden = 0, bKunden = 0, cKunden = 0, neukunden = 0;
+
+  daten.forEach(k => {
+    switch(k.typ) {
+      case "A-Kunde": aKunden++; break;
+      case "B-Kunde": bKunden++; break;
+      case "C-Kunde": cKunden++; break;
+      case "Neukunde": neukunden++; break;
+    }
+  });
 
   const ctx = document.getElementById("kundenChart").getContext("2d");
   if (window.kundenChartInstanz) window.kundenChartInstanz.destroy();
+
   window.kundenChartInstanz = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: ["Bestandskunden", "Interessenten"],
+      labels: ["A-Kunden", "B-Kunden", "C-Kunden", "Neukunden"],
       datasets: [{
         label: "Anzahl",
-        data: [bestandskunden, interessenten],
-        backgroundColor: ["#2ecc71", "#3498db"]
-
+        data: [aKunden, bKunden, cKunden, neukunden],
+        backgroundColor: [
+          "#2ecc71", // Grün für A-Kunden
+          "#3498db", // Blau für B-Kunden
+          "#f39c12", // Orange für C-Kunden
+          "#e74c3c"  // Rot für Neukunden
+        ]
       }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
     }
   });
 }
@@ -512,8 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
   erstelleKalender();
   zeigeTermine();
   zeigeDokumente();
-  aktualisiereKundenChart();
-  aktualisiereTermineChart();
+
   //Login-Tab falls nicht eingeloggt
   if (!getAktuellerNutzer()) {
     switchTab("login");
@@ -542,22 +580,27 @@ document.getElementById("sidebarForm").addEventListener("submit", function (e) {
   const notizen = document.getElementById("sidebarNotizen").value.trim();
   const bildDatei = document.getElementById("sidebarBild").files[0];
 
-  const speichereKunde = (bild) => {
-    daten[index] = {
-      firma,
-      name,
-      email,
-      typ,
-      notizen,
-      bild: bild || daten[index].bild || "img/default-avatar.png"
-    };
+    function speichereKunde(bild) {
+      daten[index] = {
+        firma,
+        name,
+        email,
+        typ,
+        notizen,
+        bild: bild || daten[index].bild || "img/default-avatar.png"
+      };
 
-    localStorage.setItem("kunden", JSON.stringify(daten));
-    erstelleFeedEintrag("bearbeitung", `hat die Kundendaten von ${firma} aktualisiert.`);
-    zeigeKunden();
-    aktualisiereKundenChart();
-    schließeSidebar();
-  };
+      localStorage.setItem("kunden", JSON.stringify(daten));
+      erstelleFeedEintrag("bearbeitung", `hat die Kundendaten von ${firma} aktualisiert.`);
+      zeigeKunden();
+      aktualisiereKundenChart();
+
+      // 👇 NEU: Input-Feld zurücksetzen
+      document.getElementById("sidebarBild").value = ""; // 🔄 Löscht die ausgewählte Datei
+      document.getElementById("sidebarBildVorschau").src = "img/default-avatar.png"; // Optional: Vorschau zurücksetzen
+
+      schließeSidebar();
+    };
 
   if (bildDatei) {
     const reader = new FileReader();
@@ -636,17 +679,23 @@ function zeigeFeed() {
 function zeigeAktuellenNutzer() {
   const nutzer = getAktuellerNutzer();
   const el = document.getElementById("aktuellerNutzer");
+  const logoutBtn = document.getElementById("logoutButton");
+
   if (nutzer) {
     el.textContent = `👤 Eingeloggt als: ${nutzer}`;
-    el.style.display = "block"; //hier stellen wir die sichtbarkeit sicher
+    el.style.display = "block";
+    logoutBtn.style.display = "block";
+    document.body.classList.add("logged-in"); // Für CSS-Klasse
   } else {
     el.textContent = "";
     el.style.display = "none";
+    logoutBtn.style.display = "none";
+    document.body.classList.remove("logged-in");
   }
 }
 
 //benutzername in feed-einträgen verwenden
-function erstelleFeedEintrag(aktion, beschreibung, firma = null) {
+function erstelleFeedEintrag(aktion, beschreibung) {  //  firma-Parameter entfernt
   const nutzer = getAktuellerNutzer();
   if (!nutzer) return;
 
@@ -655,9 +704,7 @@ function erstelleFeedEintrag(aktion, beschreibung, firma = null) {
     zeitstempel: new Date().toISOString(),
     nutzer,
     aktion,
-    beschreibung: firma
-      ? `${nutzer} hat ${firma} als neuen Kunden angelegt.`
-      : `${nutzer} ${beschreibung}`
+    beschreibung: `${nutzer} ${beschreibung}`  //  Immer gleiches Format
   };
   feed.unshift(eintrag);
   localStorage.setItem("feed", JSON.stringify(feed));

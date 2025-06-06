@@ -9,13 +9,19 @@
 </head>
 <body>
   <nav>
-      <span id="aktuellerNutzer" class="login-status"></span>
+    <div class="nav-left">
+      <span id="aktuellerNutzer"></span>
+    </div>
+    <div class="nav-center">
       <a href="#" onclick="handleTabSwitch('feed')">🏠 Newsfeed</a>
       <a href="#" onclick="handleTabSwitch('kunden')">Kunden</a>
       <a href="#" onclick="handleTabSwitch('kalender')">Kalender</a>
       <a href="#" onclick="handleTabSwitch('dokumente')">Dokumente</a>
-      <button id="modeToggle">🌓 Darkmode umschalten</button>
-      <button onclick="logout()">🔒 Ausloggen</button>
+    </div>
+    <div class="nav-right">
+      <button id="logoutButton" onclick="logout()">🔒 Ausloggen</button>
+      <button id="modeToggle">🌓 Darkmode</button>
+    </div>
   </nav>
 
   <section id="feed" class="tab">
@@ -40,7 +46,7 @@
 
 
 
-  <!-- Kunden -->
+
   <!-- Kunden -->
 <section id="kunden" class="tab">
   <h2>🧾 Kundenverwaltung</h2>
@@ -50,11 +56,13 @@
       <input type="text" name="firma" placeholder="Firma *" required />
       <input type="text" name="name" placeholder="Ansprechpartner *" required />
       <input type="email" name="email" placeholder="E-Mail" />
-      <select name="typ">
-        <option value="" disabled selected>Kundentyp wählen *</option>
-        <option value="Bestandskunde">Bestandskunde</option>
-        <option value="Interessent">Interessent</option>
-      </select>
+        <select name="typ" required>
+          <option value="" disabled selected>Kundentyp wählen *</option>
+          <option value="A-Kunde">A-Kunde (Premium)</option>
+          <option value="B-Kunde">B-Kunde (Standard)</option>
+          <option value="C-Kunde">C-Kunde (Basis)</option>
+          <option value="Neukunde">Neukunde</option>
+        </select>
       <textarea name="notizen" placeholder="Notizen"></textarea>
       <button type="submit">➕ Kunde speichern</button>
     </form>
@@ -78,10 +86,13 @@
       <input type="text" id="sidebarFirma" placeholder="Firma" required />
       <input type="text" id="sidebarName" placeholder="Name" required />
       <input type="email" id="sidebarEmail" placeholder="E-Mail" />
-      <select id="sidebarTyp">
-        <option value="Bestandskunde">Bestandskunde</option>
-        <option value="Interessent">Interessent</option>
-      </select>
+        <select id="sidebarTyp" required>
+          <option value="" disabled selected>Kundentyp wählen *</option>
+          <option value="A-Kunde">A-Kunde (Premium)</option>
+          <option value="B-Kunde">B-Kunde (Standard)</option>
+          <option value="C-Kunde">C-Kunde (Basis)</option>
+          <option value="Neukunde">Neukunde</option>
+        </select>
       <textarea id="sidebarNotizen" placeholder="Notizen"></textarea>
       <button type="submit">💾 Speichern</button>
       <button type="button" onclick="schließeSidebar()">❌ Abbrechen</button>
