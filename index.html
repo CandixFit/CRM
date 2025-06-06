@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM System</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <nav>
+      <span id="aktuellerNutzer"></span>
+      <a href="#" onclick="switchTab('feed')">🏠 Newsfeed</a>
+      <a href="#" onclick="switchTab('kunden')">Kunden</a>
+      <a href="#" onclick="switchTab('kalender')">Kalender</a>
+      <a href="#" onclick="switchTab('dokumente')">Dokumente</a>
+      <button id="modeToggle">🌓 Darkmode umschalten</button>
+      <button onclick="logout()">🔒 Ausloggen</button>
+  </nav>
+
+  <section id="feed" class="tab">
+    <h2>🏠 Team-Newsfeed</h2>
+    <ul id="feedListe"></ul>
+  </section>
+  <!-- login -->
+  <section id="login" class="tab active">
+    <h2>🔐 Login</h2>
+    <form id="loginForm">
+      <select id="benutzerName">
+        <option value="">-- Benutzer wählen --</option>
+        <option value="Mara">Mara</option>
+        <option value="Alex">Alex</option>
+        <option value="Sophie">Sophie</option>
+        <option value="Tim">Tim</option>
+      </select>
+      <button type="submit">➡️ Login</button>
+    </form>
+  </section>
+
+
+
+  <!-- Kunden -->
+  <section id="kunden" class="tab active">
+    <h2>🧾 Kundenverwaltung</h2>
+    <form id="kundenForm">
+      <input type="text" name="firma" placeholder="Firma" required />
+      <input type="text" name="name" placeholder="Ansprechpartner" required />
+      <input type="email" name="email" placeholder="E-Mail" />
+      <select name="typ">
+        <option value="Bestandskunde">Bestandskunde</option>
+        <option value="Interessent">Interessent</option>
+      </select>
+      <textarea name="notizen" placeholder="Notizen"></textarea>
+      <button type="submit">➕ Kunde speichern</button>
+    </form>
+
+    <input type="text" id="sucheKunden" placeholder="🔍 Kunden suchen..." oninput="filterKunden()" />
+    <h3>Gespeicherte Kunden</h3>
+    <ul id="kundenListe"></ul>
+    <button onclick="exportKundenCSV()">📤 Kunden als CSV exportieren</button>
+
+    <canvas id="kundenChart"></canvas>
+  </section>
+  <!-- sidebar -->
+  <div id="kundenSidebar" class="sidebar">
+    <h3>Kunde bearbeiten</h3>
+    <form id="sidebarForm">
+      <img id="sidebarBildVorschau" src="img/default-avatar.png" alt="Profilbild" style="max-width: 100%; border-radius: 8px; margin-bottom: 10px;" />
+      <input type="file" id="sidebarBild" accept="image/*" />
+
+      <input type="hidden" id="sidebarIndex" />
+      <input type="text" id="sidebarFirma" placeholder="Firma" required />
+      <input type="text" id="sidebarName" placeholder="Name" required />
+      <input type="email" id="sidebarEmail" placeholder="E-Mail" />
+      <select id="sidebarTyp">
+        <option value="Bestandskunde">Bestandskunde</option>
+        <option value="Interessent">Interessent</option>
+      </select>
+      <textarea id="sidebarNotizen" placeholder="Notizen"></textarea>
+      <button type="submit">💾 Speichern</button>
+      <button type="button" onclick="schließeSidebar()">❌ Abbrechen</button>
+    </form>
+  </div>
+  <!-- kalender sidebar -->
+  <div id="terminSidebar" class="sidebar">
+  <h3>Termin bearbeiten</h3>
+  <form id="terminSidebarForm">
+    <input type="hidden" id="terminSidebarIndex" />
+    <input type="text" id="terminFirma" placeholder="Firma" required />
+    <input type="text" id="terminPerson" placeholder="Ansprechpartner" required />
+    <input type="date" id="terminDatumBearbeiten" required />
+    <textarea id="terminNotiz" placeholder="Notiz" required></textarea>
+
+    <button type="submit">💾 Speichern</button>
+    <button type="button" onclick="schließeTerminSidebar()">❌ Abbrechen</button>
+  </form>
+</div>
+
+
+
+  <!-- Kalender -->
+  <section id="kalender" class="tab">
+    <h2>📅 Kalender</h2>
+    <div class="monats-navigation">
+      <button onclick="wechselMonat(-1)">⬅️</button>
+      <div id="monatAnzeige"></div>
+      <button onclick="wechselMonat(1)">➡️</button>
+    </div>
+
+
+    <div id="kalenderContainer"></div>
+
+    <div id="terminFormular">
+      <h4>📝 Termin hinzufügen</h4>
+      <input type="date" id="terminDatum" />
+      <input type="text" id="terminFirmaNeu" placeholder="Firma" />
+      <input type="text" id="terminPersonNeu" placeholder="Ansprechpartner" />
+      <input type="text" id="terminText" placeholder="Terminbeschreibung" />
+      <button onclick="speichereTermin()">Speichern</button>
+    </div>
+
+
+    <input type="text" id="sucheTermine" placeholder="🔍 Termine durchsuchen..." oninput="filterTermine()" />
+    <ul id="terminListe"></ul>
+    <button onclick="exportTermineCSV()">📤 Termine als CSV exportieren</button>
+    <canvas id="termineChart"></canvas>
+  </section>
+
+  <!-- Dokumente -->
+  <section id="dokumente" class="tab">
+    <h2>📄 Dokumentenverwaltung</h2>
+
+    <input type="text" id="kundenNameDokument" placeholder="Kundennamen eingeben" />
+    <select id="rolleDokument">
+      <option value="Alle">Alle</option>
+      <option value="Vertrieb">Vertrieb</option>
+      <option value="Support">Support</option>
+    </select>
+    <input type="file" id="dokumentUpload" />
+    <button onclick="speichereDokument()">📥 Hochladen</button>
+
+    <h3>Gespeicherte Dokumente</h3>
+    <ul id="dokumentListe"></ul>
+    <button onclick="exportDokumenteCSV()">📤 Dokumente als CSV exportieren</button>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

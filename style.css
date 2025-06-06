@@ -1,0 +1,470 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background-color: #f4f6f9;
+  color: #2c3e50;
+}
+
+nav {
+  background-color: #2c3e50;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+nav a {
+  color: #ecf0f1;
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+.tab {
+  display: none;
+  padding: 30px 40px;
+}
+
+.tab.active {
+  display: block;
+}
+
+h1, h2, h3 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+input, select, textarea, button {
+  font-family: inherit;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: white;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+li button {
+  margin-left: 10px;
+  width: auto;
+  padding: 5px 10px;
+}
+
+canvas {
+  max-width: 100%;
+  margin-top: 20px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.04);
+}
+
+#terminFormular {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #ecf0f1;
+  border-radius: 8px;
+}
+
+iframe, img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+body.dark {
+  background-color: #1c1f26;
+  color: #ecf0f1;
+}
+
+body.dark nav {
+  background-color: #11141a;
+}
+
+body.dark .tab {
+  background-color: #2c3e50;
+}
+
+body.dark li {
+  background-color: #34495e;
+  color: white;
+}
+
+body.dark canvas {
+  background-color: #2c3e50;
+}
+
+body.dark input,
+body.dark select,
+body.dark textarea {
+  background-color: #2c3e50;
+  color: white;
+  border: 1px solid #555;
+}
+
+body.dark button {
+  background-color: #2980b9;
+}
+
+body.dark #terminFormular {
+  background-color: #2c3e50;
+  color: white;
+}
+#kalenderContainer table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+#kalenderContainer th,
+#kalenderContainer td {
+  border: 1px solid #ccc;
+  padding: 15px;
+  text-align: center;
+  min-width: 40px;
+  height: 60px;
+  font-size: 16px;
+}
+/* Sonntag = erste Spalte (Index 0), Samstag = letzte (Index 6) */
+#kalenderContainer td:nth-child(1), /* Sonntag */
+#kalenderContainer td:nth-child(7)  /* Samstag */ {
+  background-color: #e0e0e0;
+}
+
+body.dark #kalenderContainer td:nth-child(1),
+body.dark #kalenderContainer td:nth-child(7) {
+  background-color: #444;
+}
+.feiertag {
+  background-color: #e74c3c !important;
+  color: white;
+  font-weight: bold;
+}
+
+body.dark .feiertag {
+  background-color: #c0392b !important;
+}
+
+
+#kalenderContainer th {
+  background-color: #3498db;
+  color: white;
+}
+
+.kalenderTag {
+  cursor: pointer;
+  background-color: #ecf0f1;
+  transition: background 0.2s;
+}
+
+.kalenderTag:hover {
+  background-color: #d0e4f1;
+}
+.kalenderTag.mitTermin {
+  background-color: #c9f7c4 !important; /* hellgrün */
+  font-weight: bold;
+}
+
+.kalenderTag.aktiv {
+  border: 2px solid #3498db;
+  background-color: #d6eaf8;
+}
+body.dark #kalenderContainer th,
+body.dark #kalenderContainer td {
+  border: 1px solid #555;
+  color: #ecf0f1;
+}
+
+body.dark .kalenderTag {
+  background-color: #2c3e50;
+}
+
+body.dark .kalenderTag:hover {
+  background-color: #3b536f;
+}
+
+body.dark .kalenderTag.mitTermin {
+  background-color: #27ae60 !important;
+}
+
+body.dark .kalenderTag.aktiv {
+  background-color: #2980b9;
+  border: 2px solid #3498db;
+}
+body.dark .monats-navigation #monatAnzeige {
+  color: #ecf0f1;
+}
+
+
+.sidebar {
+  position: fixed;
+  right: -100%;
+  top: 0;
+  width: 300px;
+  height: 100%;
+  background: #ecf0f1;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  overflow-y: auto;
+  transition: right 0.3s ease;
+  z-index: 1001;
+}
+
+.sidebar.show {
+  right: 0;
+}
+
+body.dark .sidebar {
+  background: #2c3e50;
+  color: white;
+}
+
+.sidebar input,
+.sidebar select,
+.sidebar textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+#kundenChart {
+  width: 50% !important;
+  height: auto !important;
+  display: block;
+  margin: 30px auto 0 auto; /* zentriert mit Abstand oben */
+}
+
+@media (max-width: 600px) {
+  #kundenChart {
+    width: 100% !important; /* mobil wieder volle Breite */
+  }
+}
+#kalenderContainer {
+  width: 70%;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  #kalenderContainer {
+    width: 100%;
+  }
+}
+#termineChart {
+  width: 70% !important;
+  height: auto !important;
+  display: block;
+  margin: 30px auto 0 auto;
+}
+
+@media (max-width: 600px) {
+  #termineChart {
+    width: 100% !important;
+  }
+}
+.monats-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.monats-navigation button {
+  padding: 10px 16px;
+  font-size: 1.2rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.monats-navigation button:hover {
+  background-color: #2980b9;
+}
+
+.monats-navigation #monatAnzeige {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+body.dark .monats-navigation #monatAnzeige {
+  color: #ecf0f1;
+}
+
+.kunden-eingabe-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;        /* Zentriert horizontal */
+  justify-content: center;
+  max-width: 500px;
+  margin: 0 auto 40px auto;   /* Oben: 0, unten: Abstand */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+.kunden-eingabe-container input,
+.kunden-eingabe-container select,
+.kunden-eingabe-container textarea,
+.kunden-eingabe-container button {
+  width: 100%;
+}
+#kundenListe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+#kundenListe li {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#kundenListe li img {
+  margin-bottom: 10px;
+}
+
+#kundenListe li span {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#kundenListe li button {
+  align-self: flex-start;
+  margin-right: 10px;
+}
+body.dark #kundenListe li {
+  background-color: #34495e;
+  color: white;
+}
+#kundenListe li p {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #555;
+}
+
+body.dark #kundenListe li p {
+  color: #ccc;
+}
+.kunden-button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  margin-top: auto;
+}
+#terminListe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+#terminListe li {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#terminListe li button {
+  align-self: flex-end;
+  padding: 6px 10px;
+  margin-left: 10px;
+}
+
+body.dark #terminListe li {
+  background-color: #34495e;
+  color: white;
+}
+/* Feed Styling */
+.feed-eintrag {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+
+body.dark .feed-eintrag {
+  background: #34495e;
+}
+
+.feed-nutzer {
+  font-weight: bold;
+  color: #3498db;
+}
+
+.feed-zeit {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-left: 10px;
+}
+
+.feed-text {
+  margin: 8px 0 0 0;
+  color: #2c3e50;
+}
+
+body.dark .feed-text {
+  color: #ecf0f1;
+}
+nav button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+}
+
+nav button:hover {
+    background-color: #2980b9;
+}
+
+body.dark nav button {
+    background-color: #2980b9;
+}
