@@ -15,12 +15,13 @@
     <div class="nav-center">
       <a href="#" onclick="handleTabSwitch('feed')">🏠 Newsfeed</a>
       <a href="#" onclick="handleTabSwitch('kunden')">Kunden</a>
+      <a href="#" onclick="handleTabSwitch('bestellungen')">Bestellungen</a>
       <a href="#" onclick="handleTabSwitch('kalender')">Kalender</a>
       <a href="#" onclick="handleTabSwitch('dokumente')">Dokumente</a>
     </div>
     <div class="nav-right">
-      <button id="logoutButton" onclick="logout()">🔒 Ausloggen</button>
-      <button id="modeToggle">🌓 Darkmode</button>
+      <button id="logoutButton" onclick="logout()">Ausloggen</button>
+      <button id="modeToggle">Darkmode</button>
     </div>
   </nav>
 
@@ -75,7 +76,7 @@
 
   <canvas id="kundenChart"></canvas>
 </section>
-  <!-- sidebar -->
+  <!-- Kundensidebar -->
   <div id="kundenSidebar" class="sidebar">
     <h3>Kunde bearbeiten</h3>
     <form id="sidebarForm">
@@ -94,6 +95,8 @@
           <option value="Neukunde">Neukunde</option>
         </select>
       <textarea id="sidebarNotizen" placeholder="Notizen"></textarea>
+      <h4>🛒 Bestellungen</h4>
+      <ul id="kundenBestellungenListe"></ul>
       <button type="submit">💾 Speichern</button>
       <button type="button" onclick="schließeSidebar()">❌ Abbrechen</button>
     </form>
@@ -143,6 +146,53 @@
     <canvas id="termineChart"></canvas>
   </section>
 
+  <!-- Bestellungen -->
+  <section id="bestellungen" class="tab">
+    <h2>🛒 Bestellungen</h2>
+    <form id="bestellungForm">
+      <input type="text" id="bestellungKunde" placeholder="Kunde (Firmenname) *" required />
+      <input type="text" id="bestellungArtikel" placeholder="Artikel *" required />
+      <input type="date" id="bestellungDatum" required />
+      <input type="number" id="bestellungBetrag" placeholder="Betrag (€) *" required />
+      <select id="bestellungStatus" required>
+        <option value="offen">Offen</option>
+        <option value="bezahlt">Bezahlt</option>
+      </select>
+      <button type="submit">➕ Bestellung speichern</button>
+    </form>
+    <!-- filterfunktion bestellungen -->
+    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <input type="text" id="filterBestellungKunde" placeholder="🔍 Kunde filtern..." oninput="filterBestellungen()" />
+      <select id="filterBestellungStatus" onchange="filterBestellungen()">
+        <option value="">Alle Status</option>
+        <option value="offen">Offen</option>
+        <option value="bezahlt">Bezahlt</option>
+      </select>
+    </div>
+
+    <ul id="bestellungenListe"></ul>
+    <div id="bearbeitungBestellung" style="display:none; margin-top: 20px;">
+  <h3>✏️ Bestellung bearbeiten</h3>
+    <form id="bestellungBearbeitenForm">
+      <input type="hidden" id="bestellungIndex" />
+      <input type="text" id="bearbeitenKunde" placeholder="Kunde" required />
+      <input type="text" id="bearbeitenArtikel" placeholder="Artikel" required />
+      <input type="date" id="bearbeitenDatum" required />
+      <input type="number" id="bearbeitenBetrag" placeholder="Betrag (€)" required />
+      <select id="bearbeitenStatus" required>
+        <option value="offen">Offen</option>
+        <option value="bezahlt">Bezahlt</option>
+      </select>
+      <button type="submit">💾 Aktualisieren</button>
+      <button type="button" onclick="bearbeitungAbbrechen()">❌ Abbrechen</button>
+    </form>
+  </div>
+
+    </section>
+
+
+
+
   <!-- Dokumente -->
   <section id="dokumente" class="tab">
     <h2>📄 Dokumentenverwaltung</h2>
@@ -161,7 +211,7 @@
     <button onclick="exportDokumenteCSV()">📤 Dokumente als CSV exportieren</button>
   </section>
 
-  <script src="script.js"></script>
+
 <!-- Login Modal -->
 <div id="loginModal" class="modal">
   <div class="modal-content">
@@ -169,5 +219,22 @@
     <button onclick="document.getElementById('loginModal').classList.remove('show')">OK</button>
   </div>
 </div>
+  <div id="bestellungSidebar" class="sidebar">
+    <h3>✏️ Bestellung bearbeiten</h3>
+    <form id="bestellungSidebarForm">
+      <input type="hidden" id="bestellungSidebarIndex" />
+      <input type="text" id="sidebarBestellungKunde" placeholder="Kunde" required />
+      <input type="text" id="sidebarBestellungArtikel" placeholder="Artikel" required />
+      <input type="date" id="sidebarBestellungDatum" required />
+      <input type="number" id="sidebarBestellungBetrag" placeholder="Betrag (€)" required />
+      <select id="sidebarBestellungStatus" required>
+        <option value="offen">Offen</option>
+        <option value="bezahlt">Bezahlt</option>
+      </select>
+      <button type="submit">💾 Speichern</button>
+      <button type="button" onclick="schließeBestellungSidebar()">❌ Abbrechen</button>
+    </form>
+  </div>
+<script src="script.js"></script>
 </body>
 </html>

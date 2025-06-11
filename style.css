@@ -634,7 +634,7 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 10px 20px;
 }
 
 .nav-left, .nav-center, .nav-right {
@@ -671,3 +671,116 @@ body.dark .kunde-A { border-left-color: #27ae60; }
 body.dark .kunde-B { border-left-color: #2980b9; }
 body.dark .kunde-C { border-left-color: #d35400; }
 body.dark .kunde-Neukunde { border-left-color: #c0392b; }
+/* Stil für beide Buttons in der Navbar */
+.nav-right button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 1rem; /* Gleiche Schriftgröße */
+  margin: 0; /* Margin entfernen */
+  white-space: nowrap; /* Verhindert Zeilenumbruch */
+  height: 36px; /* Feste Höhe */
+  line-height: 1; /* Bessere vertikale Ausrichtung */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover-Effekt für beide */
+.nav-right button:hover {
+  background-color: #2980b9;
+}
+
+/* Darkmode-Spezifische Anpassungen */
+body.dark .nav-right button {
+  background-color: #2980b9;
+}
+
+/* Logout-Button spezifisches Icon */
+#logoutButton::before {
+  content: "🔒 ";
+}
+
+/* Darkmode-Button spezifisches Icon */
+#modeToggle::before {
+  content: "🌓 ";
+}
+
+/* Bestellungen Formular Styling */
+#bestellungForm {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  gap: 12px;
+}
+
+#bestellungForm input,
+#bestellungForm select,
+#bestellungForm textarea,
+#bestellungForm button {
+  width: 100%;
+  padding: 12px;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+#bestellungForm button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+
+#bestellungForm button:hover {
+  background-color: #2980b9;
+}
+
+/* Dark Mode Anpassungen */
+body.dark #bestellungForm {
+  background-color: #34495e;
+}
+
+body.dark #bestellungForm input,
+body.dark #bestellungForm select,
+body.dark #bestellungForm textarea {
+  background-color: #2c3e50;
+  color: white;
+  border-color: #555;
+}
+
+/* Bestellungen Liste Styling */
+#bestellungenListe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+#bestellungenListe li {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+body.dark #bestellungenListe li {
+  background-color: #34495e;
+  color: white;
+}

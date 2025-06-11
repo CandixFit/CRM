@@ -115,6 +115,8 @@ function zeigeKunden() {
       document.getElementById("sidebarNotizen").value = kunde.notizen;
       document.getElementById("kundenSidebar").classList.add("show");
       document.getElementById("sidebarBildVorschau").src = kunde.bild || "img/default-avatar.png";
+      zeigeKundenBestellungen(kunde.firma);
+
     };
 
     const löschenBtn = document.createElement("button");
@@ -551,6 +553,7 @@ document.addEventListener("DOMContentLoaded", () => {
   erstelleKalender();
   zeigeTermine();
   zeigeDokumente();
+  zeigeBestellungen();
 
   //Login-Tab falls nicht eingeloggt
   if (!getAktuellerNutzer()) {
@@ -748,3 +751,141 @@ function handleTabSwitch(tabId) {
   switchTab(tabId);
   return false;
 }
+document.getElementById("bestellungForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const kunde = document.getElementById("bestellungKunde").value.trim();
+  const artikel = document.getElementById("bestellungArtikel").value.trim();
+  const datum = document.getElementById("bestellungDatum").value;
+  const betrag = parseFloat(document.getElementById("bestellungBetrag").value);
+  const status = document.getElementById("bestellungStatus").value;
+
+  if (!kunde || !artikel || !datum || isNaN(betrag)) {
+    alert("Bitte alle Felder korrekt ausfüllen.");
+    return;
+  }
+
+  const bestellungen = JSON.parse(localStorage.getItem("bestellungen")) || [];
+  bestellungen.push({ kunde, artikel, datum, betrag, status });
+  localStorage.setItem("bestellungen", JSON.stringify(bestellungen));
+
+  // Kunde im Kundenprofil aktualisieren
+  const kunden = JSON.parse(localStorage.getItem("kunden")) || [];
+  const kundeIndex = kunden.findIndex(k => k.firma === kunde);
+  if (kundeIndex !== -1) {
+    kunden[kundeIndex].bestellungen = kunden[kundeIndex].bestellungen || [];
+    kunden[kundeIndex].bestellungen.push({ artikel, datum, betrag, status });
+    localStorage.setItem("kunden", JSON.stringify(kunden));
+  }
+
+  zeigeBestellungen();
+  erstelleFeedEintrag("bestellung", `hat eine Bestellung von ${kunde} am ${datum} für ${betrag.toFixed(2)}€ angelegt (${status}).`);
+  e.target.reset();
+});
+
+function zeigeBestellungen() {
+  const liste = document.getElementById("bestellungenListe");
+  liste.innerHTML = "";
+  const bestellungen = JSON.parse(localStorage.getItem("bestellungen")) || [];
+
+  bestellungen.forEach((b, i) => {
+    const li = document.createElement("li");
+
+    const inhalt = document.createElement("div");
+    inhalt.innerHTML = `
+      <strong>📦 ${b.artikel}</strong><br/>
+      👤 ${b.kunde} – 💶 ${b.betrag.toFixed(2)} €<br/>
+      📅 ${b.datum} – 🏷️ Status: ${b.status}
+    `;
+
+    const bearbeitenBtn = document.createElement("button");
+    bearbeitenBtn.textContent = "✏️";
+    bearbeitenBtn.onclick = () => bestellungBearbeiten(i);
+
+    const löschenBtn = document.createElement("button");
+    löschenBtn.textContent = "❌";
+    löschenBtn.onclick = () => {
+      bestellungen.splice(i, 1);
+      localStorage.setItem("bestellungen", JSON.stringify(bestellungen));
+      zeigeBestellungen();
+    };
+
+    const btnContainer = document.createElement("div");
+    btnContainer.classList.add("kunden-button-container");
+    btnContainer.appendChild(bearbeitenBtn);
+    btnContainer.appendChild(löschenBtn);
+
+    li.appendChild(inhalt);
+    li.appendChild(btnContainer);
+    liste.appendChild(li);
+  });
+}
+function bestellungBearbeiten(index) {
+  const daten = JSON.parse(localStorage.getItem("bestellungen")) || [];
+  const eintrag = daten[index];
+
+  document.getElementById("bestellungSidebarIndex").value = index;
+  document.getElementById("sidebarBestellungKunde").value = eintrag.kunde;
+  document.getElementById("sidebarBestellungArtikel").value = eintrag.artikel;
+  document.getElementById("sidebarBestellungDatum").value = eintrag.datum;
+  document.getElementById("sidebarBestellungBetrag").value = eintrag.betrag;
+  document.getElementById("sidebarBestellungStatus").value = eintrag.status;
+
+  document.getElementById("bestellungSidebar").classList.add("show");
+}
+
+document.getElementById("bestellungSidebarForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const index = parseInt(document.getElementById("bestellungSidebarIndex").value, 10);
+  const kunde = document.getElementById("sidebarBestellungKunde").value.trim();
+  const artikel = document.getElementById("sidebarBestellungArtikel").value.trim();
+  const datum = document.getElementById("sidebarBestellungDatum").value;
+  const betrag = parseFloat(document.getElementById("sidebarBestellungBetrag").value);
+  const status = document.getElementById("sidebarBestellungStatus").value;
+
+  const daten = JSON.parse(localStorage.getItem("bestellungen")) || [];
+  daten[index] = { kunde, artikel, datum, betrag, status };
+  localStorage.setItem("bestellungen", JSON.stringify(daten));
+
+  erstelleFeedEintrag("bestellung", `hat eine Bestellung von ${kunde} bearbeitet (${status}, ${betrag.toFixed(2)} €).`);
+  zeigeBestellungen();
+  schließeBestellungSidebar();
+});
+function schließeBestellungSidebar() {
+  document.getElementById("bestellungSidebar").classList.remove("show");
+}
+function filterBestellungen() {
+  const suchbegriff = document.getElementById("filterBestellungKunde").value.toLowerCase();
+  const statusFilter = document.getElementById("filterBestellungStatus").value;
+
+  document.querySelectorAll("#bestellungenListe li").forEach(li => {
+    const text = li.textContent.toLowerCase();
+    const passtStatus = !statusFilter || text.includes(statusFilter.toLowerCase());
+    const passtKunde = !suchbegriff || text.includes(suchbegriff);
+    li.style.display = (passtStatus && passtKunde) ? "" : "none";
+  });
+}
+function zeigeKundenBestellungen(firma) {
+  const bestellungen = JSON.parse(localStorage.getItem("bestellungen")) || [];
+  const kundenBestellungen = bestellungen.filter(b => b.kunde === firma);
+
+  const liste = document.getElementById("kundenBestellungenListe");
+  liste.innerHTML = "";
+
+  if (kundenBestellungen.length === 0) {
+    const leer = document.createElement("li");
+    leer.textContent = "Keine Bestellungen vorhanden.";
+    liste.appendChild(leer);
+    return;
+  }
+
+  kundenBestellungen.forEach(b => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>📦 ${b.artikel}</strong><br/>
+      📅 ${b.datum} – 💶 ${b.betrag.toFixed(2)} € – ${b.status}
+    `;
+    liste.appendChild(li);
+  });
+}
+
+
